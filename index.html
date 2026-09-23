@@ -9,14 +9,19 @@
   </p>
 </section>
 <section style="position:sticky;top:0;z-index:99;background-color:#0F2C4F;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.25);">
-  <button onclick="copyAll()" style="background-color:#F2D979;border:none;border-radius:8px;padding:10px 22px;font-size:15px;font-weight:bold;color:#0F2C4F;cursor:pointer;">📋 一键复制全文（公众号格式）</button>
-  <span id="toastbar" style="color:#BBD3F0;font-size:13px;">就绪 · 粘贴到公众号编辑器后图片会自动转存</span>
+  
+  <span style="display:inline-flex;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden;">
+    <button id="btn-zh" onclick="setLang('zh')" style="border:none;background:#F2D979;padding:8px 16px;font-size:13.5px;font-weight:bold;color:#0F2C4F;cursor:pointer;">中文</button>
+    <button id="btn-en" onclick="setLang('en')" style="border:none;background:rgba(255,255,255,.2);padding:8px 16px;font-size:13.5px;font-weight:bold;color:#E2E8F0;cursor:pointer;">English</button>
+  </span>
+  <button onclick="copyAll()" style="background-color:#F2D979;border:none;border-radius:8px;padding:10px 22px;font-size:15px;font-weight:bold;color:#0F2C4F;cursor:pointer;">📋 一键复制全文（当前语言）</button>
+  <span id="toastbar" style="color:#BBD3F0;font-size:13px;">就绪 / Ready · 粘贴到公众号编辑器后图片会自动转存</span>
 </section>
 <section class="noexport" style="max-width:756px;margin:10px auto;padding:10px 14px;background-color:#FFF8E1;border:none;border-radius:6px;">
-  <p style="margin:0;font-size:13.5px;color:#8A6D1B;line-height:1.8;">① 点黄色按钮复制全文 → 公众号编辑器 Ctrl+V（文字样式完整；若题图提示"上传失败"，见②）；② 题图单独传：点卡片右上角「复制题图」→ 回到编辑器中该题图位置 Ctrl+V，编辑器会直接当图片上传（100% 成功）；③ 拆发单篇用「复制本篇」。题图文件也在工作区 imgs 文件夹，可在编辑器手动上传。</p>
+  <p style="margin:0;font-size:13.5px;color:#8A6D1B;line-height:1.8;">① 点黄色按钮复制全文（当前语言版本）→ 公众号编辑器 Ctrl+V（文字样式完整；若题图提示"上传失败"，见②）；② 题图单独传：点卡片右上角「复制题图」→ 回到编辑器中该题图位置 Ctrl+V，编辑器会直接当图片上传（100% 成功）；③ 拆发单篇用「复制本篇」。题图文件也在工作区 imgs 文件夹，可在编辑器手动上传。</p>
 </section>
 <section style="max-width:760px;margin:0 auto;padding:4px 8px 24px 8px;">
-<div id="content">
+<div id="content-zh">
 
   <section style="background-color:#1E5AA8;border-radius:12px 12px 0 0;padding:22px 20px 16px 20px;">
     <p style="margin:0;font-size:12px;letter-spacing:2px;color:#BBD3F0;text-align:center;">SPORTS MEDICINE &amp; ARTHROSCOPY DIGEST</p>
@@ -28,10 +33,10 @@
   </section>
 
   <section style="background-color:#EEF4FB;border:none;border-radius:4px;padding:14px 14px;margin:10px 0;">
-    <p style="margin:0 0 8px 0;font-size:13px;font-weight:bold;color:#1E5AA8;letter-spacing:1px;">编者按 <span style="font-weight:normal;font-size:11px;color:#7C97B8;">EDITOR'S NOTE</span></p>
-    <p style="margin:0 0 8px 0;font-size:15px;color:#1E3A5F;line-height:1.9;">本期覆盖 9 月 21–22 日（9 月 23 日 PubMed 尚无新收录），10 本核心期刊共检出 <b>24 篇</b>，剔除 3 篇编辑评论及 3 篇纯基础研究（绵羊模型、肩关节肌骨标本模拟、身体活动促进概念框架）后，精选 <b>14 篇</b>纳入本期。</p>
-    <p style="margin:0 0 8px 0;font-size:15px;color:#1E3A5F;line-height:1.9;">本期最突出的主线是 <b>ACL 重建的失败预测与术式选择</b>，而且观点之间互相咬合：一篇 262 例倾向性评分匹配研究把<b>术前被动胫骨前移（PATS）</b>确立为翻修的独立危险因素并给出纵向演变轨迹；另一篇 281 例 RCT 亚组分析则显示 25 岁以下患者中，<b>单纯 BPTB 重建的 5 年失败风险是「腘绳肌腱 + 前外侧韧带重建」的 4 倍</b>（16.4% vs 4.8%）。与此同时，一项遗体研究把<b>内侧与外侧胫骨后倾的作用拆开了</b>——外侧后倾决定前向移位、内外侧后倾差决定内旋，为「差异性矫正」提供了机制基础。三条线索合起来，指向同一个方向：ACL 的稳定性是一个多平面问题，单纯重建韧带本身并不足以覆盖。</p>
-    <p style="margin:0;font-size:15px;color:#1E3A5F;line-height:1.9;">肩关节板块本期分量很重，且呈现「共识与争议并存」的有趣格局：<b>2026 国际专家共识（Part I/II，97 位来自 15 国的肩关节外科医生）</b>在诊断、肩胛下肌修复与肌腱转位这些领域达成了强共识，但在<b>补片增强与上关节囊重建</b>上几乎全线未能取得共识——这恰恰是当前临床上最热、也最缺乏证据的部分，值得作为「哪些能承诺、哪些不能」的界线来读。足踝方面则有一项针对慢性踝不稳的 RCT：<b>频闪眼镜（视觉扰动）训练</b>在女性排球运动员中带来额外的静态平衡与踝稳定感获益，给了康复处方一个新的可选工具。</p>
+    <p style="margin:0 0 8px 0;font-size:13px;font-weight:bold;color:#1E5AA8;letter-spacing:1px;">编者按 <span style="font-weight:normal;font-size:11px;color:#7C97B8;">EDITOR’S NOTE</span></p>
+    <p style="margin:0 0 8px 0;font-size:15px;color:color:#1E3A5F;line-height:1.9;">本期覆盖 9 月 21–22 日（9 月 23 日 PubMed 尚无新收录），10 本核心期刊共检出 <b>24 篇</b>，剔除 3 篇编辑评论及 3 篇纯基础研究（绵羊模型、肩关节肌骨标本模拟、身体活动促进概念框架）后，精选 <b>14 篇</b>纳入本期。</p>
+    <p style="margin:0 0 8px 0;font-size:15px;color:color:#1E3A5F;line-height:1.9;">本期最突出的主线是 <b>ACL 重建的失败预测与术式选择</b>，而且观点之间互相咬合：一篇 262 例倾向性评分匹配研究把<b>术前被动胫骨前移（PATS）</b>确立为翻修的独立危险因素并给出纵向演变轨迹；另一篇 281 例 RCT 亚组分析则显示 25 岁以下患者中，<b>单纯 BPTB 重建的 5 年失败风险是「腘绳肌腱 + 前外侧韧带重建」的 4 倍</b>（16.4% vs 4.8%）。与此同时，一项遗体研究把<b>内侧与外侧胫骨后倾的作用拆开了</b>——外侧后倾决定前向移位、内外侧后倾差决定内旋，为「差异性矫正」提供了机制基础。三条线索合起来，指向同一个方向：ACL 的稳定性是一个多平面问题，单纯重建韧带本身并不足以覆盖。</p>
+    <p style="margin:0;font-size:15px;color:color:#1E3A5F;line-height:1.9;">肩关节板块本期分量很重，且呈现「共识与争议并存」的有趣格局：<b>2026 国际专家共识（Part I/II，97 位来自 15 国的肩关节外科医生）</b>在诊断、肩胛下肌修复与肌腱转位这些领域达成了强共识，但在<b>补片增强与上关节囊重建</b>上几乎全线未能取得共识——这恰恰是当前临床上最热、也最缺乏证据的部分，值得作为「哪些能承诺、哪些不能」的界线来读。足踝方面则有一项针对慢性踝不稳的 RCT：<b>频闪眼镜（视觉扰动）训练</b>在女性排球运动员中带来额外的静态平衡与踝稳定感获益，给了康复处方一个新的可选工具。</p>
   </section>
 
   <section style="margin:18px 0 8px 0;">
@@ -256,36 +261,296 @@
   </section>
 
   <section style="background-color:#FFFFFF;border:none;border-radius:0;padding:14px 2px;margin:10px 0;">
-    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">关于本栏目：</strong>每日定时检索 AJSM、Arthroscopy、Arthroscopy Techniques、KSSTA、Sports Health、OJSM、J ISAKOS、Sports Medicine、Foot &amp; Ankle International、JSES 共 10 本运动医学核心期刊前一日新收录文献，按关节分类，AI 辅助生成中文精要。</p>
-    <p style="margin:0;font-size:12px;color:#94A3B8;line-height:1.8;">声明：本内容由 AI 辅助整理，仅供学术交流参考，观点与数据请以原文为准，不构成诊疗建议。文献题录与摘要来源：PubMed。</p>
+    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">关于本栏目：</strong>每日定时检索 AJSM、Arthroscopy、Arthroscopy Techniques、KSSTA、Sports Health、OJSM、J ISAKOS、Sports Medicine、Foot &amp; Ankle International、JSES 共 10 本运动医学核心期刊前一日新收录文献，按关节分类，AI 辅助生成中英文精要。</p>
+    <p style="margin:0;font-size:12px;color:#94A3B8;line-height:1.8;"><strong style="color:#334155;">声明：</strong>本内容由 AI 辅助整理，仅供学术交流参考，观点与数据请以原文为准，不构成诊疗建议。文献题录与摘要来源：PubMed。</p>
   </section>
-  <p style="margin:14px 0 8px 0;font-size:11px;color:#CBD5E1;text-align:center;">— 运动医学 · 关节镜文献速览 · 第 014 期 —</p>
+  <p style="margin:14px 0 8px 0;font-size:11px;color:#CBD5E1;text-align:center;">— Sports Medicine &amp; Arthroscopy Digest · Issue 014 —</p>
+</div>
+</section>
+
+<section style="max-width:760px;margin:0 auto;padding:4px 8px 24px 8px;">
+<div id="content-en" style="display:none;">
+
+  <section style="background-color:#1E5AA8;border-radius:12px 12px 0 0;padding:22px 20px 16px 20px;">
+    <p style="margin:0;font-size:12px;letter-spacing:2px;color:#BBD3F0;text-align:center;">SPORTS MEDICINE &amp; ARTHROSCOPY DIGEST</p>
+    <p style="margin:6px 0 0 0;font-size:22px;font-weight:bold;color:#FFFFFF;text-align:center;line-height:1.4;">Sports Medicine &amp; Arthroscopy Literature Digest</p>
+    <p style="margin:8px 0 0 0;font-size:13px;color:#BBD3F0;text-align:center;">Issue 014 · Sep 23, 2026</p>
+  </section>
+  <section style="background-color:#164a8c;padding:10px 20px;border-radius:0 0 12px 12px;">
+    <p style="margin:0;font-size:12.5px;color:#D8E6F7;text-align:center;line-height:1.7;">Sep 21–22 · 24 newly indexed in 10 core journals → <b>14 selected</b> (after excluding editorials & basic science)<br>Knee 6 · Shoulder 4 · Hip 2 · Foot &amp; Ankle 1 · Injury Prevention 1 ｜ 4 systematic reviews/metas · 2 international consensus · 1 RCT subgroup</p>
+  </section>
+
+  <section style="background-color:#EEF4FB;border:none;border-radius:4px;padding:14px 14px;margin:10px 0;">
+    <p style="margin:0 0 8px 0;font-size:13px;font-weight:bold;color:#1E5AA8;letter-spacing:1px;">Editor's Note</p>
+    <p style="margin:0 0 8px 0;font-size:15px;color:color:#1E3A5F;line-height:1.9;">This issue covers Sep 21–22 (no new PubMed entries on Sep 23). A total of <b>24 articles</b> were identified across 10 core journals; after excluding 3 editorial commentaries and 3 basic-science studies (an ovine model, a cadaveric shoulder-simulator study, and a physical-activity promotion framework), <b>14 articles</b> were selected.</p>
+    <p style="margin:0 0 8px 0;font-size:15px;color:color:#1E3A5F;line-height:1.9;">The dominant theme this issue is <b>failure prediction and graft selection in ACL reconstruction</b>, with mutually reinforcing findings: a 262-patient propensity-score-matched study establishes <b>preoperative passive anterior tibial subluxation (PATS)</b> as an independent risk factor for graft failure and charts its longitudinal progression; a 281-patient RCT subgroup analysis shows that in patients under 25, <b>isolated BPTB reconstruction carries a 5-year failure risk four times higher than hamstring-plus-anterolateral-ligament reconstruction</b> (16.4% vs 4.8%). Meanwhile, a cadaveric study <b>disentangles the roles of medial versus lateral tibial slope</b>—lateral slope drives anterior translation, while the medial–lateral difference drives internal rotation—providing a mechanistic basis for differential correction. Together, these three threads point in one direction: ACL stability is a multiplanar problem that cannot be fully addressed by reconstructing the ligament alone.</p>
+    <p style="margin:0;font-size:15px;color:color:#1E3A5F;line-height:1.9;">The shoulder section is substantial this issue and shows a telling pattern of 'consensus alongside controversy': the <b>2026 international expert consensus (Parts I/II, 97 shoulder surgeons from 15 countries)</b> reached strong agreement on diagnosis, subscapularis repair, and tendon transfer, yet achieved <b>almost no consensus on graft augmentation and superior capsular reconstruction</b>—precisely the hottest and least evidence-backed techniques in current practice, worth reading as a boundary between what can and cannot be promised. In the foot-and-ankle domain, an RCT on <b>stroboscopic (visual-perturbation) training</b> shows additional gains in static balance and perceived ankle stability in female volleyball players with chronic ankle instability, adding a new option to the rehabilitation toolbox.</p>
+  </section>
+
+  <section style="margin:18px 0 8px 0;">
+    <p style="margin:0;font-size:17px;font-weight:bold;color:#1E5AA8;line-height:1.4;">▍Knee <span style="font-weight:normal;font-size:12px;color:#94A3B8;">· 6 articles</span></p>
+    <section style="height:3px;background-color:#1E5AA8;border-radius:2px;margin-top:6px;width:56px;"></section>
+  </section>
+
+  <section id="card_42766439_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42766439_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42766439_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42766439_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Propensity-Matched · Level III · 131+131 · ≥48-mo FU</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">The Association Between Passive Anterior Tibial Subluxation and Anterior Cruciate Ligament Reconstruction Failure</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">术前被动胫骨前移可预测 ACL 重建失败，且失败者会持续进展</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Knee Surg Sports Traumatol Arthrosc · 2026-09-21 · 中国·上海交通大学附属第六人民医院（Wang JQ 团队） · PMID 42766439</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> In 131 patients with graft failure matched to 131 with intact grafts (≥48-month follow-up), lateral and medial passive anterior tibial subluxation (PATS) were significantly greater in the failure group at both primary and secondary MRI (all P<.05); PATS progressed longitudinally in failures but not in intact-graft controls. Primary preoperative L-PATS was significantly associated with future graft failure (OR 1.166).</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Retrospective review of primary ACLR (Jan 2019–Dec 2023); propensity-score matching of 131 failures to 131 controls (mean age 28.9±7.7 y; 61 women [23.3%]). Secondary MRI at a median of 31.0 months (IQR 19.1–58.0) pre-revision in failures vs 24 months in controls. Multivariable logistic regression and ROC analysis for failure; linear regression for longitudinal PATS change.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> PATS has usually been seen as a consequence of failure; this matched study pushes it earlier—pre-injury subluxation itself predicts future failure, and failures show progressive worsening, a trackable trajectory. Clinical value: PATS is readable on routine MRI and can feed preoperative risk stratification, prompting more aggressive stabilization (e.g., anterolateral procedures) in high-risk knees rather than isolated ACL reconstruction. Limitations: single-center, and secondary-MRI timing differs between groups (24 vs median 31 months).</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1002/ksa.70281" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1002/ksa.70281</a></p>
+  </section>
+
+  <section id="card_42766437_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42766437_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42766437_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42766437_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">RCT Prespecified Subgroup · Level II · 281 pts · 5-yr FU</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Fourfold Higher Graft Failure Risk With Isolated BPTB Versus Hamstring ACL Reconstruction With ALL in Patients Under 25 Years: A Prespecified Subgroup Analysis of a Randomized Controlled Trial</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">25 岁以下：单纯 BPTB 重建的 5 年失败风险是「腘绳肌腱 + 前外侧韧带重建」的 4 倍</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Knee Surg Sports Traumatol Arthrosc · 2026-09-21 · 欧洲多中心（前瞻性比较研究预设亚组分析） · PMID 42766437</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> Among 281 patients under 25 (134 isolated BPTB-ACLR vs 147 HT-ACLR+ALLR), 5-year graft failure was 22 (16.4%) vs 7 (4.8%) (P=.0013); isolated BPTB was an independent risk factor (OR 4.2, 95% CI 1.8–11.3; HR 4.2, 95% CI 1.9–10.7). KOOS, IKDC, Lysholm and Tegner scores were comparable between groups.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Prespecified subgroup analysis of a prospective comparative study. Primary outcome: 5-year graft failure; secondary: KOOS, IKDC, Lysholm, Tegner. Kaplan-Meier survival and log-rank testing; multivariable logistic and Cox models.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> A four-fold difference of this magnitude is rare in the ACL literature, but two qualifiers matter: it is a prespecified subgroup analysis (not the primary endpoint) and compares two complete constructs (isolated BPTB vs hamstring + ALLR), so the benefit cannot be attributed to graft choice alone versus the added anterolateral reconstruction. The practical read: in young (<25), high-demand patients, isolated BPTB may be suboptimal, and adding anterolateral stabilization or changing the graft deserves discussion. Notably, functional scores were similar—meaning the benefit appears as fewer reoperations rather than better day-to-day function.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1002/ksa.70275" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1002/ksa.70275</a></p>
+  </section>
+
+  <section id="card_42770555_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770555_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770555_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770555_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Cadaveric Biomechanics · 8 specimens · Controlled Lab</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Lateral Tibial Posterior Slope Induces Anterior Tibial Translation While Lateral-Medial Slope Difference Induces Internal Rotation: A Cadaveric Biomechanical Study</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">胫骨后倾的作用可拆解：外侧后倾决定前向移位，内外侧差值决定内旋</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Am J Sports Med · 2026-09-22 · 美国（对照实验室研究） · PMID 42770555</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> Eight fresh-frozen knees tested under 500-N axial load at 0° and 20° flexion with optical tracking; unicondylar slope-changing osteotomies with 3D-printed wedges adjusted medial and lateral PTS independently from -5° to +10°. Increasing lateral PTS by +10° significantly increased anterior tibial translation (ATT), while a greater lateral-minus-medial PTS difference (delta PTS) increased internal rotation (IR).</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Custom compression/torsion rig preserved key ligament and meniscal root attachments; repeated-measures ANOVA with post hoc testing. Medial and lateral PTS were independently adjusted to -5°, 0°, +5°, +10°.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> Most prior work treated tibial slope as a whole; this study decomposes it into medial and lateral plateaus with a clean conclusion—anterior stability belongs to the lateral slope, rotational stability to the medial-lateral difference. This provides direct biomechanical support for differential correction: in rotation-dominant instability, uniformly reducing slope may miss the point. As a laboratory study it needs clinical confirmation, but it offers a testable hypothesis for teams performing osteotomy combined with ACL reconstruction.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1177/03635465251386134" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1177/03635465251386134</a></p>
+  </section>
+
+  <section id="card_42766443_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42766443_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42766443_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42766443_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Retrospective Cohort · Level III · 521 pts · Digital Arthrometer</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Anterior Tibial Translation in ACL-Deficient Knees Is Increased Regardless of Tear Location and Independently Associated With Early-to-Intermediate Injury Chronicity</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">ACL 损伤的胫骨前移主要由「伤后时间」决定，而非撕裂部位</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Knee Surg Sports Traumatol Arthrosc · 2026-09-21 · 单术者回顾性研究 · PMID 42766443</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> In 521 ACL-injured patients, preoperative ATT side-to-side difference (Lachmeter®) differed across tear types (P=.006; types III–V 0.5 mm greater than type I, P=.004) and was greatest in acute injuries (4.6±1.5 vs 4.2±1.5 vs 4.0±1.5 mm; P=.005). The tear-type × chronicity interaction was not significant; on multivariable regression only chronicity remained independently associated (B=-0.205, P=.032). Mean ATT-SSD exceeded 3 mm across all tear types.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Single-surgeon series (Oct 2019–Jan 2026); tears classified by modified Sherman classification; injuries categorized acute (<28 d), subacute (28–90 d), chronic (>90 d). ANOVA, subgroup comparison, interaction and multivariable linear regression.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> This corrects a common intuition that more complete or more proximal tears mean greater laxity; the truly independent factor is time since injury, with acute ATT-SSD being largest and declining over time—likely reflecting hemarthrosis, pain-mediated inhibition and capsular laxity rather than structural severity. Practical point: arthrometer values across patients should account for timing, and a high acute-phase reading should not be read as more severe injury. Also, mean ATT-SSD exceeded the 3-mm clinical threshold in every tear type, underscoring that anterior laxity is universal after ACL rupture.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1002/ksa.70268" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1002/ksa.70268</a></p>
+  </section>
+
+  <section id="card_42768777_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42768777_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42768777_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42768777_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Long-Term Cohort · Level III · 168 knees · ≥10-yr FU</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Radiographic Progression of Patellofemoral Osteoarthritis Is Not Associated With Long-Term Clinical Outcomes After Open-Wedge High Tibial Osteotomy: A 10-Year Minimum Follow-Up</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">开放楔高位胫骨截骨：髌股关节炎影像进展不改变 10 年临床结局</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Arthroscopy · 2026-09-21 · 韩国（连续病例长期随访） · PMID 42768777</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> In 168 knees with mean follow-up of 12.2 years (range 10.0–16.9), 10-year survival was 91.3% with no conversion for PF OA. Radiographic PF OA progression occurred in 55.4% (93/168), yet KOOS-PF (68.5 vs 69.8, P=.533) and HSS patella scores (89.0 vs 91.0, P=.179) did not differ between progressors and non-progressors. Predictors of progression were correction angle (OR 1.361, P=.004) and preoperative PF Kellgren-Lawrence grade.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Consecutive open-wedge HTO cases (2007–2014) with ≥10-year follow-up, classified by ≥1-grade Kellgren-Lawrence increase. Outcomes: KOOS-PF and HSS patella score; survival analysis with knee arthroplasty conversion as endpoint.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> More than half of knees show radiographic PF OA progression at 10 years—a sobering figure—but the key finding is that imaging progression and patient experience are dissociated: functional scores nearly overlap and 10-year survival remains 91.3%. This is valuable for counseling: tell patients that PF radiographic changes are common after HTO but do not necessarily mean reoperation or worse function. Two modifiable risks—excess correction angle and pre-existing PF degeneration—argue for avoiding overcorrection intraoperatively.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1016/j.arthro.2026.09.008" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1016/j.arthro.2026.09.008</a></p>
+  </section>
+
+  <section id="card_42770603_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770603_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770603_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770603_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Systematic Review · Level III · 16 studies · 382 pts</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Clinical Outcomes and Complication Rates Following Medial Collateral Ligament Reconstruction Using Achilles Tendon Allograft or Hamstring Tendon Autograft: A Systematic Review</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">内侧副韧带重建：跟腱异体肌腱与腘绳肌腱自体移植结局相当，但并发症率更高</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Knee Surg Sports Traumatol Arthrosc · 2026-09-22 · 英国（系统综述） · PMID 42770603</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> 16 studies (6 Achilles tendon allograft, n=107, four with bone block; 10 hamstring autograft, n=275) showed similar function: IKDC 81.1 vs 78.8 and Lysholm 86.8 vs 87.2, all studies reporting pre/post PROMs showing significant improvement (P<.05). Complication rates were 11.2% (allograft) vs 4.0% (autograft), including two graft failures, four residual valgus instability and three infections in the allograft group.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> PRISMA-guided search (PubMed, Cochrane, Google Scholar, Scopus; 11 Feb 2026); studies over 20 years, age ≥16, reporting clinical/functional/PROMs. Narrative synthesis owing to heterogeneity.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> The MCL is the most commonly injured knee ligament, yet reconstruction indications remain debated. This review shows the two mainstream grafts are functionally equivalent (IKDC and Lysholm within 3 points), so the deciding factor is complications: allograft carries roughly three times the complication rate, with three infections worth flagging. Practically, prefer hamstring autograft when feasible; if allograft is chosen (to spare hamstrings or speed recovery), counsel patients about infection and residual-valgus risk. Limitations: narrative synthesis, no head-to-head RCT, uneven follow-up.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1002/ksa.70288" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1002/ksa.70288</a></p>
+  </section>
+
+  <section style="margin:18px 0 8px 0;">
+    <p style="margin:0;font-size:17px;font-weight:bold;color:#6D28D9;line-height:1.4;">▍Hip <span style="font-weight:normal;font-size:12px;color:#94A3B8;">· 2 articles</span></p>
+    <section style="height:3px;background-color:#6D28D9;border-radius:2px;margin-top:6px;width:56px;"></section>
+  </section>
+
+  <section id="card_42766781_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42766781_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42766781_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42766781_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Long-Term Cohort · Level III · 38 vs 42 hips · ~10-yr</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Periacetabular Osteotomy and Combined Open Femoral Head-Neck Junction Osteochondroplasty: A Concise Follow-up of a Previous Report at a Mean 10-Year Follow-up</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">髋臼周围截骨联合股骨头颈成形：10 年再手术率更低，源于减少残余撞击</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Am J Sports Med · 2026-09-21 · 美国（队列研究，前次报告的长期随访） · PMID 42766781</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> 38 PAO+OCP hips versus 42 matched PAO-only hips (2000–2007) at mean 10.6 vs 11.8 years showed similar outcome improvements, MCID/PASS achievement and clinical failure rates, but a higher reoperation rate in the PAO-only group, driven mainly by residual impingement.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Outcomes: mHHS and WOMAC; failure defined as clinical failure, THA conversion, reoperation, or composite. This is a long-term update of a prior report.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> Dysplastic hips often also harbor femoral head-neck junction cam morphology, which surgeons historically treated cautiously for fear of adding work to an already unstable hip. This 10-year study provides supportive evidence: adding OCP adds no risk, does not compromise function, but significantly reduces secondary procedures for residual impingement. In other words, addressing the femoral deformity at the time of PAO is a sensible one-stage opportunity. Limitations: small sample (38 vs 42 hips) and single-center retrospective design.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1177/03635465251387165" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1177/03635465251387165</a></p>
+  </section>
+
+  <section id="card_42770776_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770776_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770776_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770776_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Comparative Cohort · Level III · 26 EDS vs 103 non-EDS · ≥2-yr</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Ehlers-Danlos Patients Achieve High Satisfaction and Clinically Meaningful Outcomes After Combined Hip Arthroscopy and Periacetabular Osteotomy: A Comparative Study With Non-Ehlers-Danlos Syndrome Patients</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">Ehlers-Danlos 综合征患者髋关节镜联合 PAO：满意度高，但达 PASS 的比例明显偏低</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Arthroscopy · 2026-09-22 · 美国（三级髋关节保留中心） · PMID 42770776</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> EDS (n=26) vs non-EDS (n=103) patients undergoing HA+PAO: both reported >80% satisfaction at 1 and 2 years, with comparable MCID agreement for iHOT-12, PROMIS-PF and PROMIS-Depression. However, EDS patients had lower absolute PASS and maximal outcome improvement, especially PROMIS-PF—43% of EDS patients achieved 1-year absolute PASS versus 78% of non-EDS.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Prospectively collected, retrospectively analyzed HA+PAO data (2018–2023) at tertiary hip-preservation centers; dysplasia/instability with ≥2-year follow-up. Outcomes: iHOT-12 and PROMIS CATs (PF, global health, pain interference); MCID, PASS and maximal outcome improvement computed.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> This study is exceptionally useful for preoperative counseling in EDS: the good news is satisfaction is genuinely high (>80%), so surgery is not contraindicated; the honest caveat is that reaching the higher bar of an 'acceptable symptom state' occurs in only 43%, far below 78% in non-EDS. These figures are not contradictory—they reflect a worse baseline and greater sensitivity to residual discomfort in EDS. Set expectations accordingly: aim for 'marked improvement' rather than 'symptom-free.' Main limitation: only 26 EDS patients.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1016/j.arthro.2026.09.014" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1016/j.arthro.2026.09.014</a></p>
+  </section>
+
+  <section style="margin:18px 0 8px 0;">
+    <p style="margin:0;font-size:17px;font-weight:bold;color:#0E7C6B;line-height:1.4;">▍Shoulder <span style="font-weight:normal;font-size:12px;color:#94A3B8;">· 4 articles</span></p>
+    <section style="height:3px;background-color:#0E7C6B;border-radius:2px;margin-top:6px;width:56px;"></section>
+  </section>
+
+  <section id="card_42770373_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770373_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770373_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770373_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Intl Expert Consensus · Part I · 97 surgeons · 15 countries</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Rotator Cuff Tears Part I: Diagnosis, Nonoperative Management, and Repair of Posterosuperior Tears—An International Expert Consensus Statement</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">肩袖撕裂国际共识（Part I）：诊断与后上方修复达成高度一致</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Arthroscopy · 2026-09-22 · 国际共识（97 位肩关节/运动医学外科医生，15 个国家） · PMID 42770373</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> Among 50 consensus statements, 30 reached strong consensus (90–99% agreement), 17 consensus (80–89%), and only 3 none. All diagnostic domains reached strong consensus, establishing a standardized pathway for history, examination, classification and imaging; experts agreed evaluation should emphasize mechanism of injury, tissue quality and activity level, and tears should be classified by size, tendons, thickness, fatty infiltration and retraction. Nonoperative care: initial rehabilitation for most partial or chronic full-thickness tears; corticosteroid injections may help but surgery should be delayed several weeks after injection.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Formal consensus process, 9 subtopics (diagnosis, nonoperative management, posterosuperior repair, subscapularis repair, augmentation/SCR, tendon transfer, reverse TSA, revision, rehabilitation/RTP/follow-up). Consensus = 80–89%, strong = 90–99%, unanimous = 100%.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> Part I draws a clear credibility boundary: the fundamentals—diagnosis, classification, nonoperative management—are highly agreed upon and ready to standardize in clinic. The most practical line is the 'delay surgery several weeks after injection' point, an infection-related detail that is easy to overlook. Notably, such strong agreement on basics among 97 surgeons sharply contrasts with the deep disagreement on augmentation in Part II—the two parts should be read together.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1016/j.arthro.2026.09.005" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1016/j.arthro.2026.09.005</a></p>
+  </section>
+
+  <section id="card_42770381_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770381_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770381_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770381_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Intl Expert Consensus · Part II · 97 surgeons · 48 statements</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Rotator Cuff Tears Part II: Subscapularis Repair, Augmentation, and Tendon Transfer—An International Expert Consensus Statement</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">肩袖撕裂国际共识（Part II）：肩胛下肌与肌腱转位有共识，补片增强几乎无共识</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Arthroscopy · 2026-09-22 · 国际共识（97 位肩关节/运动医学外科医生，15 个国家） · PMID 42770381</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> Of 48 statements, 1 reached unanimous, 21 strong, 10 consensus, and 16 no consensus. All subscapularis-repair statements reached strong consensus (approach, anchor number, intraoperative assessment, tension-free repair, mobilization, neurovascular protection). In contrast, graft/patch augmentation and superior capsular reconstruction showed marked divergence, with most statements failing consensus on optimal graft type, augmentation configuration, and indications for balloons, tuberoplasty or acromial patching. Tendon transfer reached strong consensus on core indications, contraindications and technique.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Same consensus process (97 surgeons, 9 subtopics); reports subtopics 4 (subscapularis repair), 5 (augmentation/SCR) and 6 (tendon transfer).</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> The most valuable output of Part II is arguably a negative conclusion: the hottest techniques of recent years—patch augmentation and superior capsular reconstruction—could not even reach basic agreement among 97 international experts, with 16 statements achieving no consensus. This draws an important boundary: these techniques currently lack sufficient evidence for routine use and belong in clinical research, not as standard options promised to patients. By contrast, subscapularis repair and tendon transfer are now highly standardized. Together with Part I, this yields a 'maturity map' of rotator-cuff treatment.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1016/j.arthro.2026.09.006" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1016/j.arthro.2026.09.006</a></p>
+  </section>
+
+  <section id="card_42766425_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42766425_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42766425_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42766425_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">ESSKA-ESA Formal Consensus · Part 2 · 33 questions</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">The 2026 ESSKA-ESA Formal Consensus on Partial-Thickness Posterosuperior Rotator Cuff Tears (Part 2): Treatment Strategies, Rehabilitation, Return to Sport and Complications</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">ESSKA-ESA 部分厚度肩袖撕裂共识（Part 2）：非手术优先，无术式显示一致优越</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Knee Surg Sports Traumatol Arthrosc · 2026-09-21 · 欧洲（ESSKA-ESA 正式共识方法学） · PMID 42766425</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> A steering group (13 surgeons) developed 33 questions/statements graded A–D; an independent rating group (20 surgeons) assessed them over three rounds. 21 question-statement pairs reached strong agreement, yielding 30 recommendations (1 Grade A, 6 B, 10 C, 13 D). Grade A: trans-tendon repair of articular-sided tears increases postoperative stiffness versus tear completion. Grade B: conservative treatment ≥6 months, PRP, and managing stiffness before surgery; trans-tendon/in-situ and tear-completion repair show similar RTP rates but the latter has slightly higher retear. Nonoperative care is the preferred initial approach; no technique shows consistent superiority.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> ESSKA formal consensus methodology; recommendations graded A–D by evidence level; three-round evaluation by an independent rating group. Covers treatment strategy, rehabilitation, return to sport and complications.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> This consensus echoes the Arthroscopy expert consensus in pointing to the same conservative conclusion—nonoperative-first, no technique consistently superior—signaling that partial-thickness tears remain evidence-poor. The most actionable item is the Grade-A finding that trans-tendon repair increases stiffness risk, while tear-completion has slightly higher retear but similar RTP—suggesting the stiffness penalty may be underweighted. PRP earned Grade-B support, consistent with prior impressions. Note 13 of 30 recommendations are Grade D, reflecting overall weak evidence.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1002/ksa.70266" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1002/ksa.70266</a></p>
+  </section>
+
+  <section id="card_42770535_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770535_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770535_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770535_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Retrospective Cohort · Level III · 181 pts · 10–19 y</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Indications for Isolated Arthroscopic Bankart Repair in the Adolescent Shoulder May Be Limited: Bipolar Bone Loss and Low Distance to Dislocation Found Commonly in an Adolescent Population With Glenohumeral Instability</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">青少年复发性肩关节不稳：三分之一初诊即为双极骨缺损，单纯 Bankart 修复恐不足</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Am J Sports Med · 2026-09-22 · 美国单一三级转诊中心 · PMID 42770535</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> In 181 patients aged 10–19 with anterior shoulder instability, 74.6% had bone loss, 34.3% bipolar bone loss, 7.2% off-track, and 41.4% DTD <10 mm. Among first-time dislocators, 69.2% already had bone loss and 37.4% DTD <10 mm. Bipolar bone loss was associated with older age (16.29 vs 15.61 y); male sex and ≥5 prior dislocations were independent predictors.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Single tertiary referral center (Jan 2022–Mar 2024); glenoid bone loss, Hill-Sachs interval, on/off-track and DTD measured on MRI; chi-square and Mann-Whitney testing.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> These data carry a direct warning for adolescent instability: three-quarters have bone loss at presentation, one-third already bipolar, and nearly 37% of first-time dislocators have DTD <10 mm—so a 'first dislocation' does not mean 'structurally intact.' The traditional preference for isolated Bankart repair to preserve bone may be insufficient for many. Make MRI bone-loss assessment (especially DTD and on/off-track) routine in adolescent instability, with extra vigilance in males and those with ≥5 dislocations, considering bony augmentation when warranted. Limitations: single-center, 181 cases, no postoperative failure data.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1177/03635465251376221" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1177/03635465251376221</a></p>
+  </section>
+
+  <section style="margin:18px 0 8px 0;">
+    <p style="margin:0;font-size:17px;font-weight:bold;color:#0E7C6B;line-height:1.4;">▍Foot & Ankle <span style="font-weight:normal;font-size:12px;color:#94A3B8;">· 1 articles</span></p>
+    <section style="height:3px;background-color:#0E7C6B;border-radius:2px;margin-top:6px;width:56px;"></section>
+  </section>
+
+  <section id="card_42770538_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770538_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770538_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770538_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">RCT · Level II · 24 athletes · 8-wk</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Stroboscopic Versus Traditional Balance Training in Female Volleyball Players With Chronic Ankle Instability: A Randomized Controlled Trial</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">频闪眼镜平衡训练在慢性踝不稳女性排球运动员中带来额外获益</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Sports Health · 2026-09-22 · 随机对照试验（Level 2） · PMID 42770538</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> 24 female volleyball players with CAI randomized to stroboscopic (n=10, Senaptec glasses) or traditional (n=14) balance training, twice weekly for 8 weeks. The stroboscopic group improved dynamic balance in posterolateral reach; both groups improved neuromuscular performance, but stroboscopic training provided additional benefits in static balance and perceived ankle stability.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> Supervised balance exercises twice weekly for 8 weeks; outcomes: static balance (Performanz), dynamic balance (Y-balance), jump performance, proprioception (JPS), and CAIT/FAAM-S.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> A valuable new option for foot-and-ankle rehabilitation: stroboscopic glasses intermittently occlude vision, forcing greater reliance on proprioception and visuo-vestibular integration—essentially adding a sensory difficulty to balance training. The additional gains in static balance and, importantly, perceived ankle stability matter because subjective stability and re-injury fear directly affect return-to-play readiness. Practical read: stroboscopic training is a low-cost adjunct, not a replacement. Caveat: very small sample (24, uneven 10 vs 14).</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1177/19417381251381038" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1177/19417381251381038</a></p>
+  </section>
+
+  <section style="margin:18px 0 8px 0;">
+    <p style="margin:0;font-size:17px;font-weight:bold;color:#B45309;line-height:1.4;">▍Injury Prevention <span style="font-weight:normal;font-size:12px;color:#94A3B8;">· 1 articles</span></p>
+    <section style="height:3px;background-color:#B45309;border-radius:2px;margin-top:6px;width:56px;"></section>
+  </section>
+
+  <section id="card_42770512_en" style="width:100%;box-sizing:border-box;background-color:#FFFFFF;border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">
+    <img class="hero" src="imgs/img_42770512_en.jpg" alt="" style="width:100%;box-sizing:border-box;display:block;border-radius:4px;margin:0 0 10px 0;">
+    <button class="cpbtn" onclick="copyImg('card_42770512_en')" style="position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy image</button>
+    <button class="cpbtn" onclick="copyOne('card_42770512_en')" style="position:absolute;top:36px;right:8px;border:none;background:rgba(255,255,255,.92);border-radius:6px;font-size:11.5px;color:#64748B;padding:4px 10px;cursor:pointer;">Copy article</button>
+    <p style="margin:0 0 8px 0;"><span style="display:inline-block;background-color:#F1F5F9;color:#64748B;font-size:11.5px;padding:3px 10px;border-radius:20px;">Cross-Sectional Survey · Level IV · 99 players · 14–19 y</span></p>
+    <p style="margin:0 0 6px 0;font-size:17.5px;font-weight:bold;color:#0F172A;line-height:1.5;">Football Cleats and Injury Patterns in 14- to 19-Year-Old Female Football Players: The Effect of Surface, Gender-Specific Shoe Gear and Cleat Pattern</p>
+    <p style="margin:0 0 9px 0;font-size:12.5px;color:#64748B;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word;">14–19 岁女足运动员：穿男款球鞋受伤风险翻倍，鞋钉与场地面均有关</p>
+    <p style="margin:0 0 10px 0;font-size:12.5px;color:#94A3B8;">Sports Health · 2026-09-22 · 美国（POP 试点调查研究） · PMID 42770512</p>
+    <p style="margin:0 0 7px 0;font-size:15px;color:#0E7C66;line-height:1.8;"><strong>Conclusion:</strong> In 99 US female football players (mean 16.54±1.16 y), 60% reported injury—ankle sprains 36.7% and ACL tears 20%. Players wearing men's cleats had 2× the odds of injury versus women's cleats; women's cleats were reported more comfortable. Firm-ground surfaces were linked to nearly double injury odds regardless of cleat pattern.</p>
+    <p style="margin:0 0 5px 0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#1E5AA8;">Key points:</strong> POP pilot study, anonymous online survey, 100% completion, including injured and non-injured; examined links between lower-extremity injury, footwear and surface.</p>
+    <p style="margin:0;font-size:14.5px;color:#334155;line-height:1.85;"><strong style="color:#C05621;">Clinical implications:</strong> A simple, directly actionable finding for players and parents: buy female-specific cleats for female athletes. Women's cleats are built for female foot morphology; the doubled injury risk with men's cleats suggests ill-fitting footwear is an underappreciated modifiable factor. Firm-ground surfaces nearly doubling injury risk points to surface—not just cleat type—as a prevention target at team/facility level. Caveats: only 99 participants, self-reported, no follow-up; associations are hypothesis-generating, not causal.</p>
+    <p style="margin:10px 0 0 0;font-size:12px;color:#94A3B8;">Source: <a href="https://doi.org/10.1177/19417381251382433" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/10.1177/19417381251382433</a></p>
+  </section>
+
+  <section style="background-color:#FFFFFF;border:none;border-radius:0;padding:14px 2px;margin:10px 0;">
+    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">About this digest:</strong> A daily digest of newly indexed articles from 10 core sports medicine journals (AJSM, Arthroscopy, Arthroscopy Techniques, KSSTA, Sports Health, OJSM, J ISAKOS, Sports Medicine, Foot &amp; Ankle International, JSES), categorized by joint, with AI-assisted bilingual summaries.</p>
+    <p style="margin:0;font-size:12px;color:#94A3B8;line-height:1.8;"><strong style="color:#334155;">Disclaimer:</strong> This digest is AI-assisted and intended for academic exchange only. Please refer to the original articles for authoritative data and opinions; it does not constitute medical advice. Bibliographic records and abstracts are sourced from PubMed.</p>
+  </section>
+  <p style="margin:14px 0 8px 0;font-size:11px;color:#CBD5E1;text-align:center;">— Sports Medicine &amp; Arthroscopy Digest · Issue 014 —</p>
 </div>
 </section>
 <script>
+let curLang='zh';
 function clean(html){const t=document.createElement('div');t.innerHTML=html;t.querySelectorAll('.cpbtn,.noexport').forEach(n=>n.remove());return t.innerHTML;}
-function toast(m){const el=document.getElementById('toastbar');el.textContent=m;setTimeout(()=>el.textContent='就绪',3500);}
+function toast(m){const el=document.getElementById('toastbar');el.textContent=m;setTimeout(()=>el.textContent='就绪 / Ready',3500);}
 async function copyHTML(html,msg){
   try{
     const item=new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([html.replace(/<[^>]+>/g,' ')],{type:'text/plain'})});
-    await navigator.clipboard.write([item]);toast(msg+'（已写入剪贴板）');
+    await navigator.clipboard.write([item]);toast(msg);
   }catch(e){
     const dv=document.createElement('div');dv.contentEditable='true';dv.style.cssText='position:fixed;left:-9999px;top:0;';dv.innerHTML=html;document.body.appendChild(dv);
     const r=document.createRange();r.selectNodeContents(dv);const s=getSelection();s.removeAllRanges();s.addRange(r);
-    const okc=document.execCommand('copy');s.removeAllRanges();dv.remove();toast(msg+(okc?'（兼容模式）':'失败，请手动全选内容区复制'));
+    const okc=document.execCommand('copy');s.removeAllRanges();dv.remove();toast(msg+(okc?'':'（失败，请手动全选内容区复制）'));
   }
 }
-function copyAll(){copyHTML('<section style="max-width:750px;margin:0 auto;">'+clean(document.getElementById('content').innerHTML)+'</section>','✅ 全文已复制');}
-function copyOne(id){copyHTML(clean(document.getElementById(id).innerHTML),'✅ 单篇已复制');}
+function setLang(l){
+  curLang=l;
+  document.getElementById('content-zh').style.display = l==='zh'?'block':'none';
+  document.getElementById('content-en').style.display = l==='en'?'block':'none';
+  const bz=document.getElementById('btn-zh'), be=document.getElementById('btn-en');
+  bz.style.background = l==='zh' ? '#F2D979' : 'rgba(255,255,255,.2)';
+  bz.style.color = l==='zh' ? '#0F2C4F' : '#E2E8F0';
+  be.style.background = l==='en' ? '#F2D979' : 'rgba(255,255,255,.2)';
+  be.style.color = l==='en' ? '#0F2C4F' : '#E2E8F0';
+  toast(l==='zh'?'已切换至中文':'Switched to English');
+}
+function copyAll(){const cid=curLang==='zh'?'content-zh':'content-en';copyHTML('<section style="max-width:750px;margin:0 auto;">'+clean(document.getElementById(cid).innerHTML)+'</section>', curLang==='zh'?'✅ 全文已复制（中文）':'✅ Full text copied (English)');}
+function copyOne(id){copyHTML(clean(document.getElementById(id).innerHTML),'✅ 单篇已复制 / Article copied');}
 async function copyImg(id){
   try{
     const img=document.querySelector('#'+id+' img.hero');
-    if(!img){toast('未找到题图');return;}
+    if(!img){toast('未找到题图 / image not found');return;}
     const cnv=document.createElement('canvas');cnv.width=img.naturalWidth;cnv.height=img.naturalHeight;
     cnv.getContext('2d').drawImage(img,0,0);
     const blob=await new Promise(r=>cnv.toBlob(r,'image/png'));
     await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-    toast('✅ 题图已复制（PNG）→ 到编辑器对应位置 Ctrl+V 粘贴，会直接上传');
+    toast('✅ 题图已复制（PNG）→ 到编辑器对应位置 Ctrl+V 粘贴');
   }catch(e){toast('题图复制失败：'+e.message);}
 }
 </script>
