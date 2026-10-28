@@ -164,7 +164,8 @@ def europepmc_search_pmid(pmid):
         q = urllib.parse.urlencode({
             "query": "EXT_ID:%s AND SRC:MED" % pmid, "format": "json", "resultType": "lite",
         })
-        data = json.loads(http_get(EPMC + "/search?" + q, timeout=60))
+        raw = http_get_retry(EPMC + "/search?" + q, tries=3, delay=2.0)
+        data = json.loads(raw)
         hits = data.get("resultList", [])
         return hits[0] if hits else None
     except Exception as e:
@@ -450,7 +451,7 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
   <span id="toastbar" style="color:#BBD3F0;font-size:13px;">就绪 / Ready · 粘贴到公众号编辑器后图片会自动转存</span>
 </section>
 <section class="noexport" style="max-width:756px;margin:10px auto;padding:10px 14px;background-color:#FFF8E1;border:none;border-radius:6px;">
-  <p style="margin:0;font-size:13.5px;color:#8A6D1B;line-height:1.8;">① 点黄色按钮复制全文（中英双语版）→ 公众号编辑器 Ctrl+V（文字样式完整；若题图提示"上传失败"，见②）；② 题图单独传：点卡片右上角「复制题图」→ 回到编辑器中该题图位置 Ctrl+V，编辑器会直接当图片上传（100% 成功）；③ 拆发单篇用「复制本篇」。题图文件也在工作区 imgs 文件夹，可在编辑器手动上传。</p>
+  <p style="margin:0;font-size:13.5px;color:#8A6D1B;line-height:1.8;">① 点黄色按钮复制全文（中英双语版）→ 公众号编辑器 Ctrl+V（文字样式完整；若题图提示"上传失败"，见②）；② 题图单独传：点卡片右上角「复制题图」→ 回到编辑器中该题图位置 Ctrl+V，编辑器会直接当图片上传（100%% 成功）；③ 拆发单篇用「复制本篇」。题图文件也在工作区 imgs 文件夹，可在编辑器手动上传。</p>
 </section>
 <section style="max-width:760px;margin:0 auto;padding:4px 8px 24px 8px;">
 <div id="content">
