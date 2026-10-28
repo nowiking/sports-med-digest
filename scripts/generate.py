@@ -562,6 +562,7 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
             out.append('<p style="font-size:12.5px;color:#0E7C66;">📥 免费全文 PDF：https://nowiking.github.io/sports-med-digest/pdfs/%s.pdf</p>'
                        % pmid)
         out.append('</section>')
+        out.append('<p style="text-align:center;color:#B7C2D6;font-size:13px;margin:16px 0 8px 0;">· · · · ·</p>')
 
     out.append('<p style="font-size:14.5px;color:#8A6D1B;"><strong>💬 一起聊聊：</strong>%s</p>'
                % esc(data.get("discuss", "")))
