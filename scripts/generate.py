@@ -234,6 +234,7 @@ def build_user_prompt(arts, target_date):
     "badge_cn": "研究类型徽标，如：系统综述+Meta · I-II级证据 · 9项RCT · 556例",
     "badge_en": "对应英文徽标",
     "title_cn": "中文标题（含核心数值结论，≤30字）",
+    "title_short": "主打精简题目，≤16字，保留关键数字（用于公众号标题，如：PRP治膝骨关节炎12个月VAS多降2.98分）",
     "title_en": "英文原标题（原文照录）",
     "meta": "期刊缩写 · 日期 · 研究类型 · PMID xxx",
     "one_line": "一句话结论，80-150字，含关键数字",
@@ -500,6 +501,7 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
     """微信 draft/add 专用精简版：内容全保留、样式瘦身（正文需 <2 万字符）。"""
     out = []
     out.append('<div id="content">')
+    out.append('<p id="wx_title_short" style="display:none;">%s</p>' % esc(data.get("focus", {}).get("title_short", "")))
     out.append('<section>')
     out.append('<p style="text-align:center;font-size:12px;color:#888;letter-spacing:2px;">'
                'SPORTS MEDICINE &amp; ARTHROSCOPY DIGEST</p>')
