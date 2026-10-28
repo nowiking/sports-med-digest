@@ -1,0 +1,16 @@
+{
+  "edition": "运动医学·关节镜",
+  "note": "待确认：以下 10 本为默认清单，请与现在 WorkBuddy 使用的期刊清单核对后修改",
+  "journals": [
+    "Am J Sports Med",
+    "Arthroscopy",
+    "Arthrosc Tech",
+    "Knee Surg Sports Traumatol Arthrosc",
+    "Br J Sports Med",
+    "Orthop J Sports Med",
+    "J Shoulder Elbow Surg",
+    "Foot Ankle Int",
+    "Sports Health",
+    "J ISAKOS"
+  ]
+}
