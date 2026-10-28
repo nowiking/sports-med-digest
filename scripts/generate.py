@@ -495,6 +495,81 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
     return html
 
 
+def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
+    """微信 draft/add 专用精简版：内容全保留、样式瘦身（正文需 <2 万字符）。"""
+    out = []
+    out.append('<div id="content">')
+    out.append('<section>')
+    out.append('<p style="text-align:center;font-size:12px;color:#888;letter-spacing:2px;">'
+               'SPORTS MEDICINE &amp; ARTHROSCOPY DIGEST</p>')
+    out.append('<p style="text-align:center;font-size:20px;font-weight:bold;color:#1E5AA8;line-height:1.45;">%s</p>'
+               % esc(data.get("headline", "")))
+    out.append('<p style="text-align:center;font-size:13px;color:#888;">第 %s 期 · %s</p>' % (issue, date_str))
+    out.append('</section>')
+    out.append('<p style="font-size:12.5px;color:#666;text-align:center;">%s 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信）</p>'
+               % (target.strftime("%m月%d日"), data["_total"], data["_kept"]))
+    if data.get("editor_note"):
+        out.append('<p style="font-size:15px;color:#1E3A5F;line-height:1.9;">%s</p>' % esc(data["editor_note"]))
+
+    f = data["focus"]
+    out.append('<p style="font-size:17px;font-weight:bold;color:#0E7C6B;">▍今日主打 · TODAY’S FOCUS</p>')
+    out.append('<section>')
+    if has_img:
+        out.append('<img src="imgs/img_%s.jpg" style="width:100%%;">' % f["pmid"])
+    out.append('<p style="font-size:11.5px;color:#666;">%s · %s</p>' % (esc(f.get("badge_cn", "")), esc(f.get("badge_en", ""))))
+    out.append('<p style="font-size:17px;font-weight:bold;line-height:1.5;">%s</p>' % esc(f.get("title_cn", "")))
+    out.append('<p style="font-size:12.5px;color:#666;font-style:italic;">%s</p>' % esc(f.get("title_en", "")))
+    out.append('<p style="font-size:12.5px;color:#999;">%s</p>' % esc(f.get("meta", "")))
+    out.append('<p style="font-size:15px;color:#0E7C66;line-height:1.8;"><strong>一句话结论：</strong>%s</p>'
+               % esc(f.get("one_line", "")))
+    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong style="color:#1E5AA8;">要点：</strong>%s</p>'
+               % esc(f.get("points", "")))
+    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong style="color:#C05621;">对临床的启示：</strong>%s</p>'
+               % esc(f.get("implications", "")))
+    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong>Conclusion:</strong> %s</p>'
+               % esc(f.get("conclusion", "")))
+    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong>Key points:</strong> %s</p>'
+               % esc(f.get("key_points", "")))
+    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong>Clinical implications:</strong> %s</p>'
+               % esc(f.get("clinical_implications", "")))
+    art = arts_by_pmid.get(f["pmid"], {})
+    if art.get("doi"):
+        out.append('<p style="font-size:12px;color:#999;">原文 / Source：https://doi.org/%s</p>' % esc(art["doi"]))
+    out.append('</section>')
+
+    out.append('<p style="font-size:17px;font-weight:bold;color:#64748B;">▍其余 %d 篇 · 一屏看完</p>'
+               % len(data.get("briefs", [])))
+    for b in data.get("briefs", []):
+        pmid = b.get("pmid", "")
+        if pmid not in arts_by_pmid:
+            continue
+        art = arts_by_pmid[pmid]
+        out.append('<section>')
+        out.append('<p style="font-size:15.5px;font-weight:bold;line-height:1.5;">[%s] %s</p>'
+                   % (esc(b.get("category", "其他")), esc(b.get("title_cn", ""))))
+        out.append('<p style="font-size:12px;color:#666;font-style:italic;">%s</p>' % esc(b.get("title_en", "")))
+        out.append('<p style="font-size:12.5px;color:#999;">%s</p>' % esc(b.get("meta", "")))
+        out.append('<p style="font-size:14px;line-height:1.85;"><strong style="color:#0E7C66;">摘要：</strong>%s</p>'
+                   % esc(b.get("summary_cn", "")))
+        out.append('<!--en--><p style="font-size:13.5px;color:#666;font-style:italic;line-height:1.8;">%s</p>'
+                   % esc(b.get("summary_en", "")))
+        if art.get("doi"):
+            out.append('<p style="font-size:12px;color:#999;">原文：https://doi.org/%s</p>' % esc(art["doi"]))
+        if art.get("_pdf"):
+            out.append('<p style="font-size:12.5px;color:#0E7C66;">📥 免费全文 PDF：https://nowiking.github.io/sports-med-digest/pdfs/%s.pdf</p>'
+                       % pmid)
+        out.append('</section>')
+
+    out.append('<p style="font-size:14.5px;color:#8A6D1B;"><strong>💬 一起聊聊：</strong>%s</p>'
+               % esc(data.get("discuss", "")))
+    out.append('<p style="font-size:12px;color:#999;line-height:1.8;">本内容由 AI 辅助整理，仅供学术交流参考，'
+               '观点与数据请以原文为准，不构成诊疗建议。文献题录与摘要来源：PubMed。</p>')
+    out.append('<p style="font-size:11px;color:#CBD5E1;text-align:center;">— 运动医学 · 关节镜文献速览 · 第 %s 期 —</p>'
+               % issue)
+    out.append('</div>')
+    return "\n".join(out)
+
+
 # ---------------- git ----------------
 
 def git_commit_push(today_str):
@@ -613,6 +688,11 @@ def main():
     with open(os.path.join(REPO, "index.html"), "w", encoding="utf-8") as fp:
         fp.write(html)
     log("index.html written (%d bytes)", len(html.encode("utf-8")))
+
+    whtml = render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img)
+    with open(os.path.join(REPO, "wechat.html"), "w", encoding="utf-8") as fp:
+        fp.write(whtml)
+    log("wechat.html written (%d bytes)", len(whtml.encode("utf-8")))
 
     state["issue"] = issue
     state["last_digest_date"] = date_str
