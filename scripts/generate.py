@@ -37,6 +37,20 @@ EXCLUDE_PUBTYPES = {
     "Retraction of Publication", "News", "Published Erratum", "Biography",
 }
 
+# PubMed ISO 缩写 → 期刊封面文件名（covers/ 目录）
+COVER_MAP = {
+    "Am J Sports Med": "AmJSportsMed",
+    "Arthroscopy": "Arthroscopy",
+    "Arthrosc Tech": "ArthroscTech",
+    "Knee Surg Sports Traumatol Arthrosc": "KSSTA",
+    "Br J Sports Med": "BJSM",
+    "Orthop J Sports Med": "OJSM",
+    "J Shoulder Elbow Surg": "JSES",
+    "Foot Ankle Int": "FootAnkleInt",
+    "Sports Health": "SportsHealth",
+    "J ISAKOS": "JISAKOS",
+}
+
 MAX_LLM_RETRY = 3
 
 
@@ -548,6 +562,9 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
             continue
         art = arts_by_pmid[pmid]
         out.append('<section>')
+        cov = COVER_MAP.get(art.get("jiso", ""))
+        if cov:
+            out.append('<img src="covers/%s.jpg" style="width:100%%;">' % cov)
         out.append('<p style="font-size:15.5px;font-weight:bold;line-height:1.5;">[%s] %s</p>'
                    % (esc(b.get("category", "其他")), esc(b.get("title_cn", ""))))
         out.append('<p style="font-size:12px;color:#666;font-style:italic;">%s</p>' % esc(b.get("title_en", "")))
