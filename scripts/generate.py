@@ -112,8 +112,14 @@ def efetch_articles(pmids):
                 y = ad.findtext("Year"); m = ad.findtext("Month"); d = ad.findtext("Day")
         date = "-".join([x for x in (y, m, d) if x]) or ""
         try:
-            if m and m.isdigit() and len(m) == 1:
-                m = "0" + m
+            MONTHS = {"jan": "01", "feb": "02", "mar": "03", "apr": "04", "may": "05", "jun": "06",
+                      "jul": "07", "aug": "08", "sep": "09", "oct": "10", "nov": "11", "dec": "12"}
+            if m:
+                mk = m.strip().lower()[:3]
+                if mk in MONTHS:
+                    m = MONTHS[mk]
+                elif m.isdigit() and len(m) == 1:
+                    m = "0" + m
             if d and d.isdigit() and len(d) == 1:
                 d = "0" + d
             date = "-".join([x for x in (y, m, d) if x])
@@ -145,8 +151,10 @@ def fetch_new_articles(journals, lookback_days=2):
     log("esearch term:", term[:200])
     pmids = esearch_pmids(term)
     arts = efetch_articles(pmids)
+    total = len(arts)
     kept = [a for a in arts if not (set(a["ptypes"]) & EXCLUDE_PUBTYPES)]
-    return kept, target
+    log("fetched %d, kept %d after excluding editorials/letters", total, len(kept))
+    return kept, target, total
 
 
 # ---------------- Europe PMC（题图 / 免费 PDF） ----------------
@@ -531,7 +539,7 @@ def main():
         log("今日已生成（%s），跳过", state["last_digest_date"])
         sys.exit(0)
 
-    arts, target = fetch_new_articles(journals)
+    arts, target, total = fetch_new_articles(journals)
     log("fetched %d articles for %s", len(arts), target)
     if not arts:
         log("无新文献，跳过")
@@ -540,7 +548,7 @@ def main():
     arts_by_pmid = {a["pmid"]: a for a in arts}
     prompt = build_user_prompt(arts, target.strftime("%Y-%m-%d"))
     data = call_deepseek(prompt)
-    data["_total"] = len(arts)
+    data["_total"] = total
     data["_kept"] = len(arts)
 
     # 校验 focus
