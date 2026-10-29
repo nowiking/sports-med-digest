@@ -2,8 +2,8 @@ name: daily-digest
 
 on:
   schedule:
-    # UTC 04:00 = 北京时间 12:00（GitHub Actions cron 可能有几分钟到几十分钟延迟）
-    - cron: "0 4 * * *"
+    # UTC 03:30 = 北京时间 11:30（GitHub Actions cron 可能有延迟，留足缓冲）
+    - cron: "30 3 * * *"
   workflow_dispatch: {}
 
 permissions:
