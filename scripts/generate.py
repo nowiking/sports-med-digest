@@ -251,9 +251,9 @@ def build_user_prompt(arts, target_date):
     "title_short": "主打精简题目，≤16字，保留关键数字，不要使用冒号（用于公众号标题，如：PRP治膝骨关节炎12个月VAS多降2.98分）",
     "title_en": "英文原标题（原文照录）",
     "meta": "期刊缩写 · 日期 · 研究类型 · PMID xxx",
-    "one_line": "一句话结论，80-150字，含关键数字",
-    "points": "要点，60-120字",
-    "implications": "对临床的启示，120-220字，可联系近期话题，并指出研究局限",
+    "one_line": "一句话结论，80-120字，含关键数字",
+    "points": "要点，50-100字",
+    "implications": "对临床的启示，100-180字，可联系近期话题，并指出研究局限",
     "conclusion": "英文 Conclusion，对应 one_line",
     "key_points": "英文 Key points，对应 points",
     "clinical_implications": "英文 Clinical implications，对应 implications"
@@ -265,8 +265,8 @@ def build_user_prompt(arts, target_date):
       "title_cn": "中文标题（≤30字，含关键结论）",
       "title_en": "英文原标题（原文照录）",
       "meta": "期刊缩写 · PMID xxxxxxxx",
-      "summary_cn": "中文摘要，50-90字，含关键数字",
-      "summary_en": "对应英文摘要"
+      "summary_cn": "中文摘要，40-70字，含关键数字",
+      "summary_en": "对应英文摘要（同样精炼）"
     }
   ],
   "discuss": "文末互动问题 1 句"
