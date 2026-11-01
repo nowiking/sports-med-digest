@@ -188,7 +188,7 @@ def europepmc_search_pmid(pmid):
 
 
 def download_figure(pmcid, pmid):
-    """取 PMC 全文里第一张图作为题图。失败返回 None。"""
+    """取 PMC 全文里第一张图作为题图/文中图。失败返回 None。"""
     try:
         xml_text = http_get(EPMC + "/%s/fullTextXML" % pmcid, timeout=90)
         m = re.search(r'<graphic[^>]*xlink:href="([^"]+)"', xml_text)
@@ -198,10 +198,25 @@ def download_figure(pmcid, pmid):
         if url.startswith("//"):
             url = "https:" + url
         blob = http_get_retry(url, tries=2, binary=True)
-        if len(blob) < 5000 or len(blob) > 3_000_000:
+        if len(blob) < 5000 or len(blob) > 5_000_000:
             return None
         if not (blob[:3] == b"\xff\xd8\xff" or blob[:8] == b"\x89PNG\r\n\x1a\n"):
             return None
+        # 压缩控制仓库体积（>800px 宽或 >300KB 时压缩）
+        try:
+            import io
+            from PIL import Image
+            im = Image.open(io.BytesIO(blob)).convert("RGB")
+            w, h = im.size
+            if w > 800:
+                im = im.resize((800, int(h * 800.0 / w)), Image.LANCZOS)
+            buf = io.BytesIO()
+            im.save(buf, "JPEG", quality=80, optimize=True)
+            small = buf.getvalue()
+            if len(small) < len(blob):
+                blob = small
+        except Exception as e:
+            log("figure compress skipped for %s: %s", pmid, e)
         return blob
     except Exception as e:
         log("figure download failed for %s: %s", pmid, e)
@@ -374,10 +389,10 @@ def brief_card_html(b, art, pdf_ready):
                     '<a href="https://doi.org/%s" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/%s</a></p>'
                     % (esc(doi), esc(doi)))
     pdf_html = ""
-    if pdf_ready:
-        pdf_html = ('<p id="pdflink_%(pmid)s" style="margin:6px 0 0 0;font-size:12.5px;">'
-                    '<a href="pdfs/%(pmid)s.pdf" style="color:#0E7C66;text-decoration:none;">📥 下载PDF（免费全文）</a></p>'
-                    % {"pmid": b["pmid"]})
+    if art.get("_pmc_url"):
+        pdf_html = ('<p style="margin:6px 0 0 0;font-size:12.5px;">'
+                    '<a href="%s" style="color:#0E7C66;text-decoration:none;">📥 免费全文（PMC，可下载 PDF）</a></p>'
+                    % art["_pmc_url"])
     fig_html = ""
     if art.get("_fig"):
         fig_html = ('<p style="margin:0 0 8px 0;"><img src="imgs/fig_%s.jpg" alt="" '
@@ -585,9 +600,9 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
                    % esc(b.get("summary_en", "")))
         if art.get("doi"):
             out.append('<p style="font-size:12px;color:#999;">原文：https://doi.org/%s</p>' % esc(art["doi"]))
-        if art.get("_pdf"):
-            out.append('<p style="font-size:12.5px;color:#0E7C66;">📥 免费全文 PDF：https://nowiking.github.io/sports-med-digest/pdfs/%s.pdf</p>'
-                       % pmid)
+        if art.get("_pmc_url"):
+            out.append('<p style="font-size:12.5px;color:#0E7C66;">📥 免费全文（PMC 可下载 PDF）：%s</p>'
+                       % art["_pmc_url"])
         out.append('</section>')
         out.append('<p style="text-align:center;color:#B7C2D6;font-size:13px;margin:16px 0 8px 0;">· · · · ·</p>')
 
@@ -724,12 +739,9 @@ def main():
             else:
                 a["_fig"] = True
                 log("figure saved for %s", pmid)
-        pdf = download_pdf(pmcid, pmid)
-        if pdf:
-            with open(os.path.join(REPO, "pdfs", "%s.pdf" % pmid), "wb") as fp:
-                fp.write(pdf)
-            a["_pdf"] = True
-            log("pdf saved for %s", pmid)
+        # 免费全文：直接给 PMC 链接（不再把大文件下载进仓库）
+        a["_pmc_url"] = "https://www.ncbi.nlm.nih.gov/pmc/articles/%s/" % pmcid
+        log("pmc link for %s", pmid)
 
     issue = int(state.get("issue", 21)) + 1
     date_str = today_bj.strftime("%Y-%m-%d")
