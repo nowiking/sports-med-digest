@@ -242,7 +242,7 @@ def build_user_prompt(arts, target_date):
     lines.append("""请按以下字段产出 JSON（key 固定，不得增删）：
 {
   "headline": "本期主标题，≤30字，冒号分隔式，突出主打结论",
-  "editor_note": "编者按，1 段 100-180 字，点出本期最值得关注的结论并联系临床",
+  "editor_note": "编者按，1 段 100-160 字，点出本期最值得关注的结论并联系临床",
   "focus": {
     "pmid": "主打文献 PMID",
     "badge_cn": "研究类型徽标，如：系统综述+Meta · I-II级证据 · 9项RCT · 556例",
@@ -252,8 +252,8 @@ def build_user_prompt(arts, target_date):
     "title_en": "英文原标题（原文照录）",
     "meta": "期刊缩写 · 日期 · 研究类型 · PMID xxx",
     "one_line": "一句话结论，80-120字，含关键数字",
-    "points": "要点，50-100字",
-    "implications": "对临床的启示，100-180字，可联系近期话题，并指出研究局限",
+    "points": "要点，60-100字",
+    "implications": "对临床的启示，100-160字，可联系近期话题，并指出研究局限",
     "conclusion": "英文 Conclusion，对应 one_line",
     "key_points": "英文 Key points，对应 points",
     "clinical_implications": "英文 Clinical implications，对应 implications"
@@ -265,17 +265,19 @@ def build_user_prompt(arts, target_date):
       "title_cn": "中文标题（≤30字，含关键结论）",
       "title_en": "英文原标题（原文照录）",
       "meta": "期刊缩写 · PMID xxxxxxxx",
-      "summary_cn": "中文摘要，40-70字，含关键数字",
-      "summary_en": "对应英文摘要（同样精炼）"
+      "summary_cn": "完整中文摘要，120-180字：交代研究设计、样本量、关键结果数值与结论，相当于论文摘要的完整摘译，不能只写一句话概括",
+      "summary_en": "对应英文摘要，80-120 词（信息量与中文一致，可略精炼）"
     }
   ],
   "discuss": "文末互动问题 1 句"
 }
 规则：
-1. focus 从文献中挑 1 篇：优先 RCT/Meta/系统综述或临床决策影响大的研究；技术短篇只有当没有更好选择时才可作主打。
-2. briefs 必须覆盖除 focus 外的每一篇文献，PMID 必须与输入完全一致，不得虚构。
-3. meta 中期刊用输入里给的标准缩写。
-4. 所有文本中不得出现 Markdown 语法。""")
+1. 本期只收录精选文献：从上面文献中挑选 10-15 篇纳入本期（含主打在内；宁可 12-15 篇，不超 15 篇）；优先 RCT/Meta/系统综述、长期随访数据与临床决策价值高的研究。
+2. focus 从入选文献中挑 1 篇做主打深读。
+3. briefs 必须覆盖除 focus 外的【每一篇入选文献】；未入选的文献不要出现在 briefs 中；PMID 必须与输入一致，不得虚构。
+4. 每篇 brief 的摘要必须完整（120-180字，研究设计+样本量+关键数值+结论），不许简写成一句话。
+5. meta 中期刊用输入里给的标准缩写。
+6. 所有文本中不得出现 Markdown 语法。""")
     return "\n".join(lines)
 
 
@@ -376,6 +378,10 @@ def brief_card_html(b, art, pdf_ready):
         pdf_html = ('<p id="pdflink_%(pmid)s" style="margin:6px 0 0 0;font-size:12.5px;">'
                     '<a href="pdfs/%(pmid)s.pdf" style="color:#0E7C66;text-decoration:none;">📥 下载PDF（免费全文）</a></p>'
                     % {"pmid": b["pmid"]})
+    fig_html = ""
+    if art.get("_fig"):
+        fig_html = ('<p style="margin:0 0 8px 0;"><img src="imgs/fig_%s.jpg" alt="" '
+                    'style="width:100%%;display:block;border-radius:4px;"></p>' % b["pmid"])
     return ('\n  <section id="card_%(pmid)s" style="width:100%%;box-sizing:border-box;background-color:#FFFFFF;'
             'border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">\n'
             '    <p style="margin:0 0 5px 0;"><span style="display:inline-block;background-color:#1E5AA8;color:#FFFFFF;'
@@ -384,6 +390,7 @@ def brief_card_html(b, art, pdf_ready):
             '    <p style="margin:0 0 6px 0;font-size:12px;color:#64748B;line-height:1.6;font-style:italic;'
             'overflow-wrap:break-word;word-break:break-word;">%(title_en)s</p>\n'
             '    <p style="margin:0 0 6px 0;font-size:12.5px;color:#94A3B8;">%(meta)s</p>\n'
+            '    %(fig_html)s\n'
             '    <p style="margin:0 0 6px 0;font-size:14px;color:#334155;line-height:1.85;">'
             '<strong style="color:#0E7C66;">摘要：</strong>%(summary_cn)s</p>\n'
             '    <section style="margin:8px 0 0 0;padding-top:6px;border-top:1px dashed #E2E8F0;"></section>\n'
@@ -395,6 +402,7 @@ def brief_card_html(b, art, pdf_ready):
                 "title_cn": esc(b.get("title_cn", "")), "title_en": esc(b.get("title_en", "")),
                 "meta": esc(b.get("meta", "")), "summary_cn": esc(b.get("summary_cn", "")),
                 "summary_en": esc(b.get("summary_en", "")),
+                "fig_html": fig_html,
                 "doi_html": doi_html, "pdf_html": pdf_html,
             })
 
@@ -495,7 +503,7 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
   </section>
 
   <section style="background-color:#FFFFFF;border:none;border-radius:0;padding:14px 2px;margin:10px 0;">
-    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">关于本栏目：</strong>每日定时检索 10 本运动医学核心期刊前一日新收录文献，每日聚焦 1 篇值得深读的 + 其余精简速览，AI 辅助生成中英双语精要。</p>
+    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">关于本栏目：</strong>每日定时检索 10 本运动医学核心期刊前一日新收录文献，精选 10-15 篇：1 篇主打深读 + 每篇完整中英双语摘要；开放获取文章配文中图片与免费全文 PDF。</p>
     <p style="margin:0;font-size:12px;color:#94A3B8;line-height:1.8;"><strong style="color:#334155;">声明：</strong>本内容由 AI 辅助整理，仅供学术交流参考，观点与数据请以原文为准，不构成诊疗建议。文献题录与摘要来源：PubMed。</p>
   </section>
   <p style="margin:14px 0 8px 0;font-size:11px;color:#CBD5E1;text-align:center;">— 运动医学 · 关节镜文献速览 · 第 %(issue)s 期 —</p>
@@ -569,6 +577,8 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
                    % (esc(b.get("category", "其他")), esc(b.get("title_cn", ""))))
         out.append('<p style="font-size:12px;color:#666;font-style:italic;">%s</p>' % esc(b.get("title_en", "")))
         out.append('<p style="font-size:12.5px;color:#999;">%s</p>' % esc(b.get("meta", "")))
+        if art.get("_fig"):
+            out.append('<img src="imgs/fig_%s.jpg" style="width:100%%;">' % pmid)
         out.append('<p style="font-size:14px;line-height:1.85;"><strong style="color:#0E7C66;">摘要：</strong>%s</p>'
                    % esc(b.get("summary_cn", "")))
         out.append('<!--en--><p style="font-size:13.5px;color:#666;font-style:italic;line-height:1.8;">%s</p>'
@@ -660,48 +670,66 @@ def main():
             "implications": "", "conclusion": "", "key_points": "", "clinical_implications": "",
         }
         log("llm focus invalid, fallback to first article")
-    # 补缺：LLM 漏掉的文献用原始摘要补一张卡片
-    covered = {b.get("pmid") for b in data.get("briefs", [])} | {focus_pmid}
+    # 数量控制：精选 10-15 篇（briefs 最多 14 + 1 篇主打）
+    briefs = [b for b in data.get("briefs", [])
+              if b.get("pmid") in arts_by_pmid and b.get("pmid") != focus_pmid]
+    seen = set()
+    uniq = []
+    for b in briefs:
+        if b["pmid"] in seen:
+            continue
+        seen.add(b["pmid"])
+        uniq.append(b)
+    if len(uniq) > 14:
+        log("briefs %d -> 截断到 14", len(uniq))
+        uniq = uniq[:14]
+    # 若 LLM 选得太少，补足到 10 篇
+    covered = seen | {focus_pmid}
     for a in arts:
-        if a["pmid"] not in covered:
-            ab = a["abstract"].strip()
-            data["briefs"].append({
-                "pmid": a["pmid"], "category": "其他",
-                "title_cn": a["title"][:30], "title_en": a["title"],
-                "meta": "%s · PMID %s" % (a["jiso"], a["pmid"]),
-                "summary_cn": ab[:100] + ("…" if len(ab) > 100 else ""),
-                "summary_en": "",
-            })
-            log("补卡 fallback for %s", a["pmid"])
+        if len(covered) >= 10:
+            break
+        if a["pmid"] in covered:
+            continue
+        ab = a["abstract"].strip()
+        uniq.append({
+            "pmid": a["pmid"], "category": "其他",
+            "title_cn": a["title"][:30], "title_en": a["title"],
+            "meta": "%s · PMID %s" % (a["jiso"], a["pmid"]),
+            "summary_cn": ab[:150] + ("…" if len(ab) > 150 else ""),
+            "summary_en": "",
+        })
+        covered.add(a["pmid"])
+        log("补卡 fallback for %s", a["pmid"])
+    data["briefs"] = uniq
+    data["_kept"] = 1 + len(uniq)
+    log("selected %d articles (1 focus + %d briefs)", data["_kept"], len(uniq))
 
-    # 题图 / PDF（主打文章）
+    # 图与免费全文：主打题图 + 各篇文中图 / PDF（仅开放获取）
+    selected = [focus_pmid] + [b["pmid"] for b in uniq]
     has_img = False
-    f_pmid = data["focus"]["pmid"]
-    hit = europepmc_search_pmid(f_pmid)
-    pmcid = hit.get("pmcid") if hit else ""
-    if pmcid:
-        blob = download_figure(pmcid, f_pmid)
+    for pmid in selected:
+        a = arts_by_pmid[pmid]
+        hit = europepmc_search_pmid(pmid)
+        pmcid = hit.get("pmcid") if hit else ""
+        if not pmcid:
+            continue
+        blob = download_figure(pmcid, pmid)
         if blob:
-            with open(os.path.join(REPO, "imgs", "img_%s.jpg" % f_pmid), "wb") as fp:
+            fname = ("img_%s.jpg" if pmid == focus_pmid else "fig_%s.jpg") % pmid
+            with open(os.path.join(REPO, "imgs", fname), "wb") as fp:
                 fp.write(blob)
-            has_img = True
-            log("hero image saved for %s", f_pmid)
-        else:
-            log("no figure for focus %s", f_pmid)
-    else:
-        log("focus %s not in Europe PMC", f_pmid)
-
-    # 每篇免费全文 PDF
-    for a in arts:
-        hit2 = europepmc_search_pmid(a["pmid"]) if a["pmid"] != f_pmid else hit
-        pcid = hit2.get("pmcid") if hit2 else ""
-        if pcid:
-            pdf = download_pdf(pcid, a["pmid"])
-            if pdf:
-                with open(os.path.join(REPO, "pdfs", "%s.pdf" % a["pmid"]), "wb") as fp:
-                    fp.write(pdf)
-                a["_pdf"] = True
-                log("pdf saved for %s", a["pmid"])
+            if pmid == focus_pmid:
+                has_img = True
+                log("hero image saved for %s", pmid)
+            else:
+                a["_fig"] = True
+                log("figure saved for %s", pmid)
+        pdf = download_pdf(pmcid, pmid)
+        if pdf:
+            with open(os.path.join(REPO, "pdfs", "%s.pdf" % pmid), "wb") as fp:
+                fp.write(pdf)
+            a["_pdf"] = True
+            log("pdf saved for %s", pmid)
 
     issue = int(state.get("issue", 21)) + 1
     date_str = today_bj.strftime("%Y-%m-%d")
