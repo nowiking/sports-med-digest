@@ -26,6 +26,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: 安装 Pillow（压缩文中图）
+        run: pip install --quiet pillow
+
       - name: 运行每日生成
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
