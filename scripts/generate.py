@@ -168,7 +168,7 @@ def fetch_new_articles(journals, lookback_days=2):
     total = len(arts)
     kept = [a for a in arts if not (set(a["ptypes"]) & EXCLUDE_PUBTYPES)]
     log("fetched %d, kept %d after excluding editorials/letters", total, len(kept))
-    return kept, target, total
+    return kept, target, total, lookback_days
 
 
 # ---------------- Europe PMC（题图 / 免费 PDF） ----------------
@@ -180,7 +180,8 @@ def europepmc_search_pmid(pmid):
         })
         raw = http_get_retry(EPMC + "/search?" + q, tries=3, delay=2.0)
         data = json.loads(raw)
-        hits = data.get("resultList", [])
+        hits = data.get("resultList", {}) or {}
+        hits = hits.get("result", []) if isinstance(hits, dict) else hits
         return hits[0] if hits else None
     except Exception as e:
         log("europepmc search failed for %s: %s", pmid, e)
@@ -471,8 +472,12 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
             continue
         brief_cards += brief_card_html(b, art, bool(art.get("_pdf")))
         n_brief += 1
-    stats = "%s 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信）" % (
-        target_date.strftime("%m月%d日"), data["_total"], data["_kept"])
+    if data.get("_window", 2) > 2:
+        stats = "近 %d 天 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信）" % (
+            data["_window"], data["_total"], data["_kept"])
+    else:
+        stats = "%s 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信）" % (
+            target_date.strftime("%m月%d日"), data["_total"], data["_kept"])
 
     html = """<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -546,8 +551,12 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
                % esc(data.get("headline", "")))
     out.append('<p style="text-align:center;font-size:13px;color:#888;">第 %s 期 · %s</p>' % (issue, date_str))
     out.append('</section>')
-    out.append('<p style="font-size:12.5px;color:#666;text-align:center;">%s 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信）</p>'
-               % (target.strftime("%m月%d日"), data["_total"], data["_kept"]))
+    if data.get("_window", 2) > 2:
+        out.append('<p style="font-size:12.5px;color:#666;text-align:center;">近 %d 天 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信）</p>'
+                   % (data["_window"], data["_total"], data["_kept"]))
+    else:
+        out.append('<p style="font-size:12.5px;color:#666;text-align:center;">%s 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信）</p>'
+                   % (target.strftime("%m月%d日"), data["_total"], data["_kept"]))
     if data.get("editor_note"):
         out.append('<p style="font-size:15px;color:#1E3A5F;line-height:1.9;">%s</p>' % esc(data["editor_note"]))
 
@@ -660,8 +669,15 @@ def main():
         log("今日已生成（%s），跳过", state["last_digest_date"])
         sys.exit(0)
 
-    arts, target, total = fetch_new_articles(journals)
-    log("fetched %d articles for %s", len(arts), target)
+    arts, target, total, win = fetch_new_articles(journals)
+    if 0 < len(arts) < 10:
+        log("only %d articles in %d-day window (weekend/holiday?), widening to 4 days", len(arts), win)
+        arts4, target4, total4, win4 = fetch_new_articles(journals, lookback_days=4)
+        if len(arts4) >= 10:
+            arts, target, total, win = arts4, target4, total4, win4
+        else:
+            log("still only %d in 4-day window, keep %d-day result", len(arts4), win)
+    log("fetched %d articles for %s (window %d days)", len(arts), target, win)
     if not arts:
         log("无新文献，跳过")
         sys.exit(0)
@@ -671,6 +687,7 @@ def main():
     data = call_deepseek(prompt)
     data["_total"] = total
     data["_kept"] = len(arts)
+    data["_window"] = win
 
     # 校验 focus
     focus_pmid = data.get("focus", {}).get("pmid", "")
