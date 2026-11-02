@@ -409,9 +409,11 @@ def brief_card_html(b, art, pdf_ready):
                     % (esc(doi), esc(doi)))
     pdf_html = ""
     if art.get("_pmc_url"):
-        pdf_html = ('<p style="margin:6px 0 0 0;font-size:12.5px;">'
-                    '<a href="%s" style="color:#0E7C66;text-decoration:none;">📥 免费全文（PMC，可下载 PDF）</a></p>'
-                    % art["_pmc_url"])
+        pdf_html = ('<p style="margin:8px 0 2px 0;font-size:13px;color:#0E7C66;font-weight:bold;">'
+                    '📥 开放获取 · 免费全文（点击或复制链接下载 PDF）：</p>'
+                    '<p style="margin:0;font-size:12.5px;">'
+                    '<a href="%s" style="color:#0E7C66;text-decoration:none;overflow-wrap:break-word;">%s</a></p>'
+                    % (art["_pmc_url"], art["_pmc_url"]))
     fig_html = ""
     if art.get("_fig"):
         fig_html = ('<p style="margin:0 0 8px 0;"><img src="imgs/fig_%s.jpg" alt="" '
@@ -628,8 +630,8 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
         if art.get("doi"):
             out.append('<p style="font-size:12px;color:#999;">原文：https://doi.org/%s</p>' % esc(art["doi"]))
         if art.get("_pmc_url"):
-            out.append('<p style="font-size:12.5px;color:#0E7C66;">📥 免费全文（PMC 可下载 PDF）：%s</p>'
-                       % art["_pmc_url"])
+            out.append('<p style="font-size:13.5px;color:#0E7C66;font-weight:bold;margin-top:8px;">📥 开放获取 · 免费全文（复制下方链接到浏览器可下载 PDF）：</p>')
+            out.append('<p style="font-size:12.5px;color:#0E7C66;">%s</p>' % art["_pmc_url"])
         out.append('</section>')
         out.append('<p style="text-align:center;color:#B7C2D6;font-size:13px;margin:16px 0 8px 0;">· · · · ·</p>')
 
