@@ -261,28 +261,33 @@ SYSTEM_PROMPT = """你是运动医学领域的资深医学编辑，为公众号�
 - 只输出一个合法 JSON 对象，不要输出任何解释文字或代码块标记"""
 
 
-def build_user_prompt(arts, target_date):
+def article_block(arts, max_ab=1600):
     lines = []
-    lines.append("今天是 %s。以下 %d 篇文献是昨天新收录到 PubMed 的（剔除编辑评论/来信后）。" % (target_date, len(arts)))
-    lines.append("")
     for a in arts:
         ab = a["abstract"].strip().replace("\n", " ")
-        if len(ab) > 1400:
-            ab = ab[:1400] + "…"
+        if len(ab) > max_ab:
+            ab = ab[:max_ab] + "…"
         lines.append("PMID %s | %s | %s" % (a["pmid"], a["jiso"], a["date"]))
         lines.append("标题: %s" % a["title"])
         lines.append("摘要: %s" % ab)
         lines.append("")
-    lines.append("""请按以下字段产出 JSON（key 固定，不得增删）：
+    return "\n".join(lines)
+
+
+def build_selection_prompt(arts, target_date):
+    lines = ["今天是 %s。以下 %d 篇文献是昨日新收录到 PubMed 的（剔除编辑评论/来信后）。" % (target_date, len(arts)), ""]
+    lines.append(article_block(arts))
+    lines.append("""请先完成本期选文与主打深读，按以下 JSON 输出（key 固定，不得增删）：
 {
   "headline": "本期主标题，≤30字，冒号分隔式，突出主打结论",
   "editor_note": "编者按，1 段 100-160 字，点出本期最值得关注的结论并联系临床",
+  "selected_pmids": ["从上面文献中选出的 10-15 篇的 PMID（含主打），按重要性排序"],
   "focus": {
     "pmid": "主打文献 PMID",
     "badge_cn": "研究类型徽标，如：系统综述+Meta · I-II级证据 · 9项RCT · 556例",
     "badge_en": "对应英文徽标",
     "title_cn": "中文标题（含核心数值结论，≤30字）",
-    "title_short": "主打精简题目，≤16字，保留关键数字，不要使用冒号（用于公众号标题，如：PRP治膝骨关节炎12个月VAS多降2.98分）",
+    "title_short": "主打精简题目，≤16字，保留关键数字，不要使用冒号（用于公众号标题）",
     "title_en": "英文原标题（原文照录）",
     "meta": "期刊缩写 · 日期 · 研究类型 · PMID xxx",
     "one_line": "一句话结论，80-120字，含关键数字",
@@ -292,6 +297,21 @@ def build_user_prompt(arts, target_date):
     "key_points": "英文 Key points，对应 points",
     "clinical_implications": "英文 Clinical implications，对应 implications"
   },
+  "discuss": "文末互动问题 1 句"
+}
+规则：
+1. selected_pmids 必须包含 10-15 篇（含 focus 的 PMID），优先 RCT/Meta/系统综述、长期随访与临床决策价值高的研究。
+2. focus 必须是 selected_pmids 之一。
+3. PMID 必须与输入一致，不得虚构。
+4. 所有文本中不得出现 Markdown 语法。""")
+    return "\n".join(lines)
+
+
+def build_briefs_prompt(subset, target_date):
+    lines = ["今天是 %s。请为下列 %d 篇文献撰写条目（均来自本期精选）。" % (target_date, len(subset)), ""]
+    lines.append(article_block(subset))
+    lines.append("""按以下 JSON 输出（key 固定）：
+{
   "briefs": [
     {
       "pmid": "PMID",
@@ -299,19 +319,11 @@ def build_user_prompt(arts, target_date):
       "title_cn": "中文标题（≤30字，含关键结论）",
       "title_en": "英文原标题（原文照录）",
       "meta": "期刊缩写 · PMID xxxxxxxx",
-      "summary_cn": "完整中文摘要，120-180字：交代研究设计、样本量、关键结果数值与结论，相当于论文摘要的完整摘译，不能只写一句话概括",
-      "summary_en": "对应英文摘要，80-120 词（信息量与中文一致，可略精炼）"
+      "summary_cn": "PubMed 英文摘要的【完整】中文翻译：逐句对应，研究设计、样本量、主要与次要终点、关键数值（含百分比/均值/置信区间/P 值）、局限与结论全部保留，不得删减、不得概括成几句话说；只翻译、不做评论"
     }
-  ],
-  "discuss": "文末互动问题 1 句"
+  ]
 }
-规则：
-1. 本期只收录精选文献：从上面文献中挑选 10-15 篇纳入本期（含主打在内；宁可 12-15 篇，不超 15 篇）；优先 RCT/Meta/系统综述、长期随访数据与临床决策价值高的研究。
-2. focus 从入选文献中挑 1 篇做主打深读。
-3. briefs 必须覆盖除 focus 外的【每一篇入选文献】；未入选的文献不要出现在 briefs 中；PMID 必须与输入一致，不得虚构。
-4. 每篇 brief 的摘要必须完整（120-180字，研究设计+样本量+关键数值+结论），不许简写成一句话。
-5. meta 中期刊用输入里给的标准缩写。
-6. 所有文本中不得出现 Markdown 语法。""")
+规则：每篇都必须有完整摘要翻译，篇幅应与原文摘要相当；PMID 与输入一致。""")
     return "\n".join(lines)
 
 
@@ -426,11 +438,11 @@ def brief_card_html(b, art, pdf_ready):
             '    <p style="margin:0 0 6px 0;font-size:12px;color:#64748B;line-height:1.6;font-style:italic;'
             'overflow-wrap:break-word;word-break:break-word;">%(title_en)s</p>\n'
             '    <p style="margin:0 0 6px 0;font-size:12.5px;color:#94A3B8;">%(meta)s</p>\n'
-            '    %(fig_html)s\n'
             '    <p style="margin:0 0 6px 0;font-size:14px;color:#334155;line-height:1.85;">'
             '<strong style="color:#0E7C66;">摘要：</strong>%(summary_cn)s</p>\n'
             '    <section style="margin:8px 0 0 0;padding-top:6px;border-top:1px dashed #E2E8F0;"></section>\n'
             '    <p style="margin:8px 0 0 0;font-size:13.5px;color:#64748B;line-height:1.8;font-style:italic;">%(summary_en)s</p>\n'
+            '    %(fig_html)s\n'
             '    %(doi_html)s\n'
             '    %(pdf_html)s\n'
             '  </section>\n' % {
@@ -621,12 +633,12 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
                    % (esc(b.get("category", "其他")), esc(b.get("title_cn", ""))))
         out.append('<p style="font-size:12px;color:#666;font-style:italic;">%s</p>' % esc(b.get("title_en", "")))
         out.append('<p style="font-size:12.5px;color:#999;">%s</p>' % esc(b.get("meta", "")))
-        if art.get("_fig"):
-            out.append('<img src="imgs/fig_%s.jpg" style="width:100%%;">' % pmid)
         out.append('<p style="font-size:14px;line-height:1.85;"><strong style="color:#0E7C66;">摘要：</strong>%s</p>'
                    % esc(b.get("summary_cn", "")))
         out.append('<!--en--><p style="font-size:13.5px;color:#666;font-style:italic;line-height:1.8;">%s</p>'
                    % esc(b.get("summary_en", "")))
+        if art.get("_fig"):
+            out.append('<img src="imgs/fig_%s.jpg" style="width:100%%;">' % pmid)
         if art.get("doi"):
             out.append('<p style="font-size:12px;color:#999;">原文：https://doi.org/%s</p>' % esc(art["doi"]))
         if art.get("_pmc_url"):
@@ -703,11 +715,15 @@ def main():
         sys.exit(0)
 
     arts_by_pmid = {a["pmid"]: a for a in arts}
-    prompt = build_user_prompt(arts, target.strftime("%Y-%m-%d"))
-    data = call_deepseek(prompt)
-    data["_total"] = total
-    data["_kept"] = len(arts)
-    data["_window"] = win
+    sel = call_deepseek(build_selection_prompt(arts, target.strftime("%Y-%m-%d")))
+    data = {
+        "headline": sel.get("headline", ""),
+        "editor_note": sel.get("editor_note", ""),
+        "discuss": sel.get("discuss", ""),
+        "focus": sel.get("focus", {}) or {},
+        "_total": total,
+        "_window": win,
+    }
 
     # 校验 focus
     focus_pmid = data.get("focus", {}).get("pmid", "")
@@ -722,21 +738,53 @@ def main():
             "implications": "", "conclusion": "", "key_points": "", "clinical_implications": "",
         }
         log("llm focus invalid, fallback to first article")
-    # 数量控制：精选 10-15 篇（briefs 最多 14 + 1 篇主打）
-    briefs = [b for b in data.get("briefs", [])
-              if b.get("pmid") in arts_by_pmid and b.get("pmid") != focus_pmid]
-    seen = set()
+
+    # 选文列表（10-15 篇，含主打）
+    selected = []
+    for p in (sel.get("selected_pmids") or []):
+        p = str(p).strip()
+        if p in arts_by_pmid and p not in selected:
+            selected.append(p)
+    if focus_pmid not in selected:
+        selected.insert(0, focus_pmid)
+    selected = selected[:15]
+    log("LLM selected %d pmids: %s", len(selected), ",".join(selected))
+
+    # 分批生成【完整摘要翻译】（每批 6 篇，避免输出超限）
+    brief_pmids = [p for p in selected if p != focus_pmid]
     uniq = []
-    for b in briefs:
-        if b["pmid"] in seen:
-            continue
-        seen.add(b["pmid"])
-        uniq.append(b)
+    for i in range(0, len(brief_pmids), 6):
+        batch = brief_pmids[i:i + 6]
+        subset = [arts_by_pmid[p] for p in batch]
+        try:
+            res = call_deepseek(build_briefs_prompt(subset, target.strftime("%Y-%m-%d")))
+        except Exception as e:
+            log("briefs batch %d failed: %s", i // 6 + 1, e)
+            res = {}
+        got = {}
+        for b in (res.get("briefs") or []):
+            if b.get("pmid") in arts_by_pmid:
+                got[b["pmid"]] = b
+        for p in batch:
+            b = got.get(p)
+            if not b:
+                a = arts_by_pmid[p]
+                b = {
+                    "pmid": p, "category": "其他",
+                    "title_cn": a["title"][:30], "title_en": a["title"],
+                    "meta": "%s · PMID %s" % (a["jiso"], p),
+                    "summary_cn": a["abstract"].strip()[:600],
+                }
+                log("brief fallback for %s", p)
+            b["summary_en"] = arts_by_pmid[p]["abstract"].strip()
+            uniq.append(b)
+        log("briefs batch %d done (%d articles)", i // 6 + 1, len(batch))
+
+    # 数量控制：10-15 篇（briefs 最多 14 + 1 篇主打）
     if len(uniq) > 14:
         log("briefs %d -> 截断到 14", len(uniq))
         uniq = uniq[:14]
-    # 若 LLM 选得太少，补足到 10 篇
-    covered = seen | {focus_pmid}
+    covered = {b["pmid"] for b in uniq} | {focus_pmid}
     for a in arts:
         if len(covered) >= 10:
             break
@@ -747,8 +795,8 @@ def main():
             "pmid": a["pmid"], "category": "其他",
             "title_cn": a["title"][:30], "title_en": a["title"],
             "meta": "%s · PMID %s" % (a["jiso"], a["pmid"]),
-            "summary_cn": ab[:150] + ("…" if len(ab) > 150 else ""),
-            "summary_en": "",
+            "summary_cn": ab[:600],
+            "summary_en": ab,
         })
         covered.add(a["pmid"])
         log("补卡 fallback for %s", a["pmid"])
