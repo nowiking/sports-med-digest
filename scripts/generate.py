@@ -195,13 +195,31 @@ def download_figure(pmcid, pmid):
         m = re.search(r'<graphic[^>]*xlink:href="([^"]+)"', xml_text)
         if not m:
             return None
-        url = m.group(1)
-        if url.startswith("//"):
-            url = "https:" + url
-        blob = http_get_retry(url, tries=2, binary=True)
-        if len(blob) < 5000 or len(blob) > 5_000_000:
+        href = m.group(1)
+        if href.startswith("//"):
+            href = "https:" + href
+        # 相对文件名（如 xxx-fig1.webp）→ 按 PMC 图床规则拼绝对 URL
+        if not href.startswith("http"):
+            candidates = [
+                "https://europepmc.org/articles/%s/bin/%s" % (pmcid, href),
+                "https://www.ncbi.nlm.nih.gov/pmc/articles/%s/bin/%s" % (pmcid, href),
+            ]
+        else:
+            candidates = [href]
+        ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
+        blob = None
+        for u in candidates:
+            try:
+                blob = http_get(u, timeout=90, binary=True, headers=ua)
+                if blob and len(blob) > 5000:
+                    break
+                blob = None
+            except Exception as e:
+                log("figure url failed %s: %s", u[:80], e)
+                blob = None
+        if not blob or len(blob) < 5000 or len(blob) > 5_000_000:
             return None
-        if not (blob[:3] == b"\xff\xd8\xff" or blob[:8] == b"\x89PNG\r\n\x1a\n"):
+        if not (blob[:3] == b"\xff\xd8\xff" or blob[:8] == b"\x89PNG\r\n\x1a\n" or blob[:4] == b"RIFF"):
             return None
         # 压缩控制仓库体积（>800px 宽或 >300KB 时压缩）
         try:
