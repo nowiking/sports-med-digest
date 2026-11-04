@@ -306,6 +306,7 @@ def build_selection_prompt(arts, target_date):
   "selected_pmids": ["从上面文献中选出的 10-15 篇的 PMID（含主打），按重要性排序"],
   "focus": {
     "pmid": "主打文献 PMID",
+    "category": "部位：膝关节/肩关节/髋关节/踝足/肘腕手/运动医学/运动防护/其他 之一",
     "badge_cn": "研究类型徽标，如：系统综述+Meta · I-II级证据 · 9项RCT · 556例",
     "badge_en": "对应英文徽标",
     "title_cn": "中文标题（含核心数值结论，≤30字）",
@@ -313,7 +314,7 @@ def build_selection_prompt(arts, target_date):
     "title_en": "英文原标题（原文照录）",
     "meta": "期刊缩写 · 日期 · 研究类型 · PMID xxx",
     "one_line": "一句话结论，80-120字，含关键数字",
-    "points": "要点，60-100字",
+    "points": "要点，用①②③编号，60-100字",
     "implications": "对临床的启示，100-160字，可联系近期话题，并指出研究局限",
     "conclusion": "英文 Conclusion，对应 one_line",
     "key_points": "英文 Key points，对应 points",
@@ -322,11 +323,12 @@ def build_selection_prompt(arts, target_date):
   "discuss": "文末互动问题 1 句"
 }
 规则：
-1. selected_pmids 必须包含 10-15 篇（含 focus 的 PMID），优先 RCT/Meta/系统综述、长期随访与临床决策价值高的研究。
-2. 标注 [OA] 的是开放获取文献（读者可免费下载全文），请**尽量从中挑选 2-3 篇**纳入本期（技术说明/病例研究也可），其余从非 OA 中挑高质量研究。
-3. focus 必须是 selected_pmids 之一。
-4. PMID 必须与输入一致，不得虚构。
-5. 所有文本中不得出现 Markdown 语法。""")
+1. selected_pmids 必须包含 10-15 篇（含 focus 的 PMID）。
+2. **只选临床研究**：优先 RCT、Meta/系统综述、大样本队列、诊断与治疗对比、长期随访、技术说明、临床流行病学；**排除基础研究**（细胞/动物实验、生物力学与尸体标本、材料学、影像算法/基础建模、分子机制），即使新颖也不选。
+3. 标注 [OA] 的是开放获取文献（可免费下载全文），请尽量从中挑选 2-3 篇纳入本期。
+4. focus 必须是 selected_pmids 之一，且为临床研究。
+5. PMID 必须与输入一致，不得虚构。
+6. 所有文本中不得出现 Markdown 语法。""")
     return "\n".join(lines)
 
 
@@ -342,11 +344,12 @@ def build_briefs_prompt(subset, target_date):
       "title_cn": "中文标题（≤30字，含关键结论）",
       "title_en": "英文原标题（原文照录）",
       "meta": "期刊缩写 · PMID xxxxxxxx",
-      "summary_cn": "PubMed 英文摘要的【完整】中文翻译：逐句对应，研究设计、样本量、主要与次要终点、关键数值（含百分比/均值/置信区间/P 值）、局限与结论全部保留，不得删减、不得概括成几句话说；只翻译、不做评论"
+      "summary_cn": "PubMed 英文摘要的【完整】中文翻译：逐句对应，研究设计、样本量、主要与次要终点、关键数值（含百分比/均值/置信区间/P 值）、局限与结论全部保留，不得删减、不得概括成几句话说；只翻译、不做评论",
+      "implications": "启示：60-100字，基于该研究结果给出对临床实践的具体提示（适用人群、操作要点、注意事项、局限），不重复摘要内容"
     }
   ]
 }
-规则：每篇都必须有完整摘要翻译，篇幅应与原文摘要相当；PMID 与输入一致。""")
+规则：每篇都必须有完整摘要翻译与启示；PMID 与输入一致。""")
     return "\n".join(lines)
 
 
@@ -454,6 +457,10 @@ def brief_card_html(b, art, pdf_ready):
     if art.get("_fig"):
         fig_html = ('<p style="margin:0 0 8px 0;"><img src="imgs/fig_%s.jpg" alt="" '
                     'style="width:100%%;display:block;border-radius:4px;"></p>' % b["pmid"])
+    impl_html = ""
+    if b.get("implications"):
+        impl_html = ('<p style="margin:0 0 6px 0;font-size:14px;color:#334155;line-height:1.85;">'
+                     '<strong style="color:#C05621;">启示：</strong>%s</p>' % esc(b["implications"]))
     return ('\n  <section id="card_%(pmid)s" style="width:100%%;box-sizing:border-box;background-color:#FFFFFF;'
             'border-radius:2px;padding:14px 10px;margin:10px 0;position:relative;">\n'
             '    <p style="margin:0 0 5px 0;"><span style="display:inline-block;background-color:#1E5AA8;color:#FFFFFF;'
@@ -463,9 +470,8 @@ def brief_card_html(b, art, pdf_ready):
             'overflow-wrap:break-word;word-break:break-word;">%(title_en)s</p>\n'
             '    <p style="margin:0 0 6px 0;font-size:12.5px;color:#94A3B8;">%(meta)s</p>\n'
             '    <p style="margin:0 0 6px 0;font-size:14px;color:#334155;line-height:1.85;">'
-            '<strong style="color:#0E7C66;">摘要：</strong>%(summary_cn)s</p>\n'
-            '    <section style="margin:8px 0 0 0;padding-top:6px;border-top:1px dashed #E2E8F0;"></section>\n'
-            '    <p style="margin:8px 0 0 0;font-size:13.5px;color:#64748B;line-height:1.8;font-style:italic;">%(summary_en)s</p>\n'
+            '<strong style="color:#0E7C66;">摘要（完整翻译）：</strong>%(summary_cn)s</p>\n'
+            '    %(impl_html)s\n'
             '    %(fig_html)s\n'
             '    %(doi_html)s\n'
             '    %(pdf_html)s\n'
@@ -473,7 +479,7 @@ def brief_card_html(b, art, pdf_ready):
                 "pmid": b["pmid"], "category": esc(b.get("category", "其他")),
                 "title_cn": esc(b.get("title_cn", "")), "title_en": esc(b.get("title_en", "")),
                 "meta": esc(b.get("meta", "")), "summary_cn": esc(b.get("summary_cn", "")),
-                "summary_en": esc(b.get("summary_en", "")),
+                "impl_html": impl_html,
                 "fig_html": fig_html,
                 "doi_html": doi_html, "pdf_html": pdf_html,
             })
@@ -529,10 +535,10 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
         brief_cards += brief_card_html(b, art, bool(art.get("_pdf")))
         n_brief += 1
     if data.get("_window", 2) > 2:
-        stats = "近 %d 天 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信）" % (
+        stats = "近 %d 天 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信/基础研究）" % (
             data["_window"], data["_total"], data["_kept"])
     else:
-        stats = "%s 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信）" % (
+        stats = "%s 10 本核心期刊新收录 <b>%d 篇</b> → 精选 <b>%d 篇</b>（剔除编辑评论/来信/基础研究）" % (
             target_date.strftime("%m月%d日"), data["_total"], data["_kept"])
 
     html = """<!DOCTYPE html>
@@ -579,7 +585,7 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
   </section>
 
   <section style="background-color:#FFFFFF;border:none;border-radius:0;padding:14px 2px;margin:10px 0;">
-    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">关于本栏目：</strong>每日定时检索 10 本运动医学核心期刊前一日新收录文献，精选 10-15 篇：1 篇主打深读 + 每篇完整中英双语摘要；开放获取文章配文中图片与免费全文 PDF。</p>
+    <p style="margin:0 0 6px 0;font-size:13px;color:#64748B;line-height:1.8;"><strong style="color:#334155;">关于本栏目：</strong>每日定时检索 10 本运动医学核心期刊前一日新收录文献，精选 10-15 篇临床研究（排除基础研究）：1 篇主打深读 + 每篇完整中文摘要与临床启示；开放获取文章附免费全文链接。</p>
     <p style="margin:0;font-size:12px;color:#94A3B8;line-height:1.8;"><strong style="color:#334155;">声明：</strong>本内容由 AI 辅助整理，仅供学术交流参考，观点与数据请以原文为准，不构成诊疗建议。文献题录与摘要来源：PubMed。</p>
   </section>
   <p style="margin:14px 0 8px 0;font-size:11px;color:#CBD5E1;text-align:center;">— 运动医学 · 关节镜文献速览 · 第 %(issue)s 期 —</p>
@@ -596,51 +602,56 @@ def render_page(data, arts_by_pmid, issue, date_str, target_date, has_img):
 
 
 def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
-    """微信 draft/add 专用精简版：内容全保留、样式瘦身（正文需 <2 万字符）。"""
+    """微信 draft/add 专用版：临床向、中文为主（无英文摘要）、每篇含启示与配图。"""
     out = []
     out.append('<div id="content">')
     out.append('<p id="wx_title_short" style="display:none;">%s</p>' % esc(data.get("focus", {}).get("title_short", "")))
     out.append('<section>')
     out.append('<p style="text-align:center;font-size:12px;color:#888;letter-spacing:2px;">'
                'SPORTS MEDICINE &amp; ARTHROSCOPY DIGEST</p>')
-    out.append('<p style="text-align:center;font-size:20px;font-weight:bold;color:#1E5AA8;line-height:1.45;">%s</p>'
+    out.append('<p style="text-align:center;font-size:21px;font-weight:bold;color:#1E5AA8;line-height:1.45;margin:10px 0 6px 0;">%s</p>'
                % esc(data.get("headline", "")))
     out.append('<p style="text-align:center;font-size:13px;color:#888;">第 %s 期 · %s</p>' % (issue, date_str))
     out.append('</section>')
     if data.get("_window", 2) > 2:
-        out.append('<p style="font-size:12.5px;color:#666;text-align:center;">近 %d 天 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信）</p>'
+        out.append('<p style="font-size:12.5px;color:#666;text-align:center;">近 %d 天 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信/基础研究）</p>'
                    % (data["_window"], data["_total"], data["_kept"]))
     else:
-        out.append('<p style="font-size:12.5px;color:#666;text-align:center;">%s 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信）</p>'
+        out.append('<p style="font-size:12.5px;color:#666;text-align:center;">%s 10 本核心期刊新收录 %d 篇 → 精选 %d 篇（剔除编辑评论/来信/基础研究）</p>'
                    % (target.strftime("%m月%d日"), data["_total"], data["_kept"]))
+
     if data.get("editor_note"):
+        out.append('<p style="font-size:16px;font-weight:bold;color:#1E5AA8;margin:16px 0 8px 0;">▍编者按 · EDITOR’S NOTE</p>')
         out.append('<p style="font-size:15px;color:#1E3A5F;line-height:1.9;">%s</p>' % esc(data["editor_note"]))
 
     f = data["focus"]
-    out.append('<p style="font-size:17px;font-weight:bold;color:#0E7C6B;">▍今日主打 · TODAY’S FOCUS</p>')
+    out.append('<p style="font-size:17px;font-weight:bold;color:#0E7C6B;margin:20px 0 8px 0;">▍今日主打 · TODAY’S FOCUS</p>')
     out.append('<section>')
     if has_img:
         out.append('<img src="imgs/img_%s.jpg" style="width:100%%;">' % f["pmid"])
+    out.append('<p style="font-size:13px;color:#0E7C66;font-weight:bold;">%s</p>' % esc(f.get("category", "") or "运动医学"))
     out.append('<p style="font-size:11.5px;color:#666;">%s · %s</p>' % (esc(f.get("badge_cn", "")), esc(f.get("badge_en", ""))))
     out.append('<p style="font-size:17px;font-weight:bold;line-height:1.5;">%s</p>' % esc(f.get("title_cn", "")))
     out.append('<p style="font-size:12.5px;color:#666;font-style:italic;">%s</p>' % esc(f.get("title_en", "")))
     out.append('<p style="font-size:12.5px;color:#999;">%s</p>' % esc(f.get("meta", "")))
     out.append('<p style="font-size:15px;color:#0E7C66;line-height:1.8;"><strong>一句话结论：</strong>%s</p>'
                % esc(f.get("one_line", "")))
-    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong style="color:#1E5AA8;">要点：</strong>%s</p>'
-               % esc(f.get("points", "")))
+    pts = re.split(r"(?=[①②③④⑤⑥])", (f.get("points", "") or "").strip())
+    pts = [esc(p).strip() for p in pts if p.strip()]
+    if pts:
+        out.append('<p style="font-size:14.5px;line-height:1.9;"><strong style="color:#1E5AA8;">要点：</strong><br>%s</p>'
+                   % "<br>".join(pts))
     out.append('<p style="font-size:14.5px;line-height:1.85;"><strong style="color:#C05621;">对临床的启示：</strong>%s</p>'
                % esc(f.get("implications", "")))
-    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong>Conclusion:</strong> %s</p>'
-               % esc(f.get("conclusion", "")))
-    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong>Key points:</strong> %s</p>'
-               % esc(f.get("key_points", "")))
-    out.append('<p style="font-size:14.5px;line-height:1.85;"><strong>Clinical implications:</strong> %s</p>'
-               % esc(f.get("clinical_implications", "")))
     art = arts_by_pmid.get(f["pmid"], {})
     if art.get("doi"):
         out.append('<p style="font-size:12px;color:#999;">原文 / Source：https://doi.org/%s</p>' % esc(art["doi"]))
+    link = art.get("_pmc_url") or art.get("_oa_link")
+    if link:
+        out.append('<p style="font-size:13px;color:#0E7C66;font-weight:bold;">📥 开放获取 · 免费全文（复制链接到浏览器）：</p>')
+        out.append('<p style="font-size:12.5px;color:#0E7C66;">%s</p>' % link)
     out.append('</section>')
+    out.append('<p style="text-align:center;color:#B7C2D6;font-size:13px;margin:16px 0 8px 0;">· · · · ·</p>')
 
     out.append('<p style="font-size:17px;font-weight:bold;color:#64748B;">▍其余 %d 篇 · 一屏看完</p>'
                % len(data.get("briefs", [])))
@@ -653,21 +664,22 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
         cov = COVER_MAP.get(art.get("jiso", ""))
         if cov:
             out.append('<img src="covers/%s.jpg" style="width:100%%;">' % cov)
-        out.append('<p style="font-size:15.5px;font-weight:bold;line-height:1.5;">[%s] %s</p>'
-                   % (esc(b.get("category", "其他")), esc(b.get("title_cn", ""))))
+        out.append('<p style="font-size:13px;color:#0E7C66;font-weight:bold;">%s</p>' % esc(b.get("category", "其他")))
+        out.append('<p style="font-size:15.5px;font-weight:bold;line-height:1.5;">%s</p>' % esc(b.get("title_cn", "")))
         out.append('<p style="font-size:12px;color:#666;font-style:italic;">%s</p>' % esc(b.get("title_en", "")))
         out.append('<p style="font-size:12.5px;color:#999;">%s</p>' % esc(b.get("meta", "")))
-        out.append('<p style="font-size:14px;line-height:1.85;"><strong style="color:#0E7C66;">摘要：</strong>%s</p>'
+        out.append('<p style="font-size:14px;line-height:1.85;"><strong style="color:#0E7C66;">摘要（完整翻译）：</strong>%s</p>'
                    % esc(b.get("summary_cn", "")))
-        out.append('<!--en--><p style="font-size:13.5px;color:#666;font-style:italic;line-height:1.8;">%s</p>'
-                   % esc(b.get("summary_en", "")))
+        if b.get("implications"):
+            out.append('<p style="font-size:14px;line-height:1.85;"><strong style="color:#C05621;">启示：</strong>%s</p>'
+                       % esc(b["implications"]))
         if art.get("_fig"):
             out.append('<img src="imgs/fig_%s.jpg" style="width:100%%;">' % pmid)
         if art.get("doi"):
             out.append('<p style="font-size:12px;color:#999;">原文：https://doi.org/%s</p>' % esc(art["doi"]))
         link = art.get("_pmc_url") or art.get("_oa_link")
         if link:
-            out.append('<p style="font-size:13.5px;color:#0E7C66;font-weight:bold;margin-top:8px;">📥 开放获取 · 免费全文（复制下方链接到浏览器可下载 PDF）：</p>')
+            out.append('<p style="font-size:13px;color:#0E7C66;font-weight:bold;margin-top:8px;">📥 开放获取 · 免费全文（复制下方链接到浏览器可下载 PDF）：</p>')
             out.append('<p style="font-size:12.5px;color:#0E7C66;">%s</p>' % link)
         out.append('</section>')
         out.append('<p style="text-align:center;color:#B7C2D6;font-size:13px;margin:16px 0 8px 0;">· · · · ·</p>')
@@ -816,7 +828,6 @@ def main():
                     "summary_cn": a["abstract"].strip()[:600],
                 }
                 log("brief fallback for %s", p)
-            b["summary_en"] = arts_by_pmid[p]["abstract"].strip()
             uniq.append(b)
         log("briefs batch %d done (%d articles)", i // 6 + 1, len(batch))
 
@@ -836,7 +847,6 @@ def main():
             "title_cn": a["title"][:30], "title_en": a["title"],
             "meta": "%s · PMID %s" % (a["jiso"], a["pmid"]),
             "summary_cn": ab[:600],
-            "summary_en": ab,
         })
         covered.add(a["pmid"])
         log("补卡 fallback for %s", a["pmid"])
