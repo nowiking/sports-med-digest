@@ -30,6 +30,7 @@ REPO = os.path.dirname(BASE)
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 EPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest"
+UNPAYWALL_EMAIL = "nowiking@users.noreply.github.com"  # Unpaywall 要求的联系邮箱（仅用于 API 标识）
 DS_URL = "https://api.deepseek.com/chat/completions"
 
 EXCLUDE_PUBTYPES = {
@@ -188,6 +189,23 @@ def europepmc_search_pmid(pmid):
         return None
 
 
+def unpaywall_lookup(doi):
+    """按 DOI 查开放获取版本（无 PMC 收录时使用）。"""
+    if not doi:
+        return None
+    try:
+        u = "https://api.unpaywall.org/v2/%s?email=%s" % (
+            urllib.parse.quote(doi), urllib.parse.quote(UNPAYWALL_EMAIL))
+        data = json.loads(http_get_retry(u, tries=2, delay=2.0))
+        if not data.get("is_oa"):
+            return None
+        loc = data.get("best_oa_location") or {}
+        return loc.get("url_for_pdf") or loc.get("url") or ("https://doi.org/" + doi)
+    except Exception as e:
+        log("unpaywall failed for %s: %s", doi, e)
+        return None
+
+
 def download_figure(pmcid, pmid):
     """取 PMC 全文里第一张图作为题图/文中图。失败返回 None。"""
     try:
@@ -267,7 +285,7 @@ def article_block(arts, max_ab=1600):
         ab = a["abstract"].strip().replace("\n", " ")
         if len(ab) > max_ab:
             ab = ab[:max_ab] + "…"
-        oa = "[OA] " if a.get("_pmcid") else ""
+        oa = "[OA] " if (a.get("_pmcid") or a.get("_oa_url")) else ""
         lines.append("%sPMID %s | %s | %s" % (oa, a["pmid"], a["jiso"], a["date"]))
         lines.append("标题: %s" % a["title"])
         lines.append("摘要: %s" % ab)
@@ -422,12 +440,13 @@ def brief_card_html(b, art, pdf_ready):
                     '<a href="https://doi.org/%s" style="color:#1E5AA8;text-decoration:none;overflow-wrap:break-word;">doi.org/%s</a></p>'
                     % (esc(doi), esc(doi)))
     pdf_html = ""
-    if art.get("_pmc_url"):
+    link = art.get("_pmc_url") or art.get("_oa_link")
+    if link:
         pdf_html = ('<p style="margin:8px 0 2px 0;font-size:13px;color:#0E7C66;font-weight:bold;">'
                     '📥 开放获取 · 免费全文（点击或复制链接下载 PDF）：</p>'
                     '<p style="margin:0;font-size:12.5px;">'
                     '<a href="%s" style="color:#0E7C66;text-decoration:none;overflow-wrap:break-word;">%s</a></p>'
-                    % (art["_pmc_url"], art["_pmc_url"]))
+                    % (link, link))
     fig_html = ""
     if art.get("_fig"):
         fig_html = ('<p style="margin:0 0 8px 0;"><img src="imgs/fig_%s.jpg" alt="" '
@@ -643,9 +662,10 @@ def render_wechat_page(data, arts_by_pmid, issue, date_str, target, has_img):
             out.append('<img src="imgs/fig_%s.jpg" style="width:100%%;">' % pmid)
         if art.get("doi"):
             out.append('<p style="font-size:12px;color:#999;">原文：https://doi.org/%s</p>' % esc(art["doi"]))
-        if art.get("_pmc_url"):
+        link = art.get("_pmc_url") or art.get("_oa_link")
+        if link:
             out.append('<p style="font-size:13.5px;color:#0E7C66;font-weight:bold;margin-top:8px;">📥 开放获取 · 免费全文（复制下方链接到浏览器可下载 PDF）：</p>')
-            out.append('<p style="font-size:12.5px;color:#0E7C66;">%s</p>' % art["_pmc_url"])
+            out.append('<p style="font-size:12.5px;color:#0E7C66;">%s</p>' % link)
         out.append('</section>')
         out.append('<p style="text-align:center;color:#B7C2D6;font-size:13px;margin:16px 0 8px 0;">· · · · ·</p>')
 
@@ -717,14 +737,19 @@ def main():
         sys.exit(0)
 
     arts_by_pmid = {a["pmid"]: a for a in arts}
-    # 预查开放获取状态（用于选文标注 [OA] 与免费全文链接）
+    # 预查开放获取状态（EPMC/PMC 优先，回落 Unpaywall 按 DOI 判定）
     for a in arts:
         try:
             hit = europepmc_search_pmid(a["pmid"])
         except Exception:
             hit = None
         a["_pmcid"] = (hit or {}).get("pmcid", "") or ""
-    log("OA articles: %d / %d", sum(1 for a in arts if a["_pmcid"]), len(arts))
+        a["_oa_url"] = ""
+        if not a["_pmcid"]:
+            u = unpaywall_lookup(a.get("doi", ""))
+            if u:
+                a["_oa_url"] = u
+    log("OA articles: %d / %d (pmc+unpaywall)", sum(1 for a in arts if a["_pmcid"] or a["_oa_url"]), len(arts))
     sel = call_deepseek(build_selection_prompt(arts, target.strftime("%Y-%m-%d")))
     data = {
         "headline": sel.get("headline", ""),
@@ -820,22 +845,23 @@ def main():
     for pmid in selected:
         a = arts_by_pmid[pmid]
         pmcid = a.get("_pmcid", "")
-        if not pmcid:
-            continue
-        blob = download_figure(pmcid, pmid)
-        if blob:
-            fname = ("img_%s.jpg" if pmid == focus_pmid else "fig_%s.jpg") % pmid
-            with open(os.path.join(REPO, "imgs", fname), "wb") as fp:
-                fp.write(blob)
-            if pmid == focus_pmid:
-                has_img = True
-                log("hero image saved for %s", pmid)
-            else:
-                a["_fig"] = True
-                log("figure saved for %s", pmid)
-        # 免费全文：直接给 PMC 链接（不再把大文件下载进仓库）
-        a["_pmc_url"] = "https://www.ncbi.nlm.nih.gov/pmc/articles/%s/" % pmcid
-        log("pmc link for %s", pmid)
+        if pmcid:
+            blob = download_figure(pmcid, pmid)
+            if blob:
+                fname = ("img_%s.jpg" if pmid == focus_pmid else "fig_%s.jpg") % pmid
+                with open(os.path.join(REPO, "imgs", fname), "wb") as fp:
+                    fp.write(blob)
+                if pmid == focus_pmid:
+                    has_img = True
+                    log("hero image saved for %s", pmid)
+                else:
+                    a["_fig"] = True
+                    log("figure saved for %s", pmid)
+            a["_pmc_url"] = "https://www.ncbi.nlm.nih.gov/pmc/articles/%s/" % pmcid
+            log("pmc link for %s", pmid)
+        elif a.get("_oa_url"):
+            a["_oa_link"] = a["_oa_url"]
+            log("oa link for %s: %s", pmid, a["_oa_url"][:100])
 
     issue = int(state.get("issue", 21)) + 1
     date_str = today_bj.strftime("%Y-%m-%d")
