@@ -31,6 +31,9 @@ REPO = os.path.dirname(BASE)
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 EPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 UNPAYWALL_EMAIL = "nowiking@users.noreply.github.com"  # Unpaywall 要求的联系邮箱（仅用于 API 标识）
+
+# 全开放获取期刊（PubMed ISO 缩写）：其文章一律可免费获取全文
+OA_JOURNALS = {"Arthrosc Tech", "Orthop J Sports Med", "J ISAKOS"}
 DS_URL = "https://api.deepseek.com/chat/completions"
 
 EXCLUDE_PUBTYPES = {
@@ -737,7 +740,7 @@ def main():
         sys.exit(0)
 
     arts_by_pmid = {a["pmid"]: a for a in arts}
-    # 预查开放获取状态（EPMC/PMC 优先，回落 Unpaywall 按 DOI 判定）
+    # 预查开放获取状态（EPMC/PMC 优先 → Unpaywall 按 DOI → 全 OA 期刊直接给 DOI 链接）
     for a in arts:
         try:
             hit = europepmc_search_pmid(a["pmid"])
@@ -749,7 +752,9 @@ def main():
             u = unpaywall_lookup(a.get("doi", ""))
             if u:
                 a["_oa_url"] = u
-    log("OA articles: %d / %d (pmc+unpaywall)", sum(1 for a in arts if a["_pmcid"] or a["_oa_url"]), len(arts))
+            elif a.get("jiso") in OA_JOURNALS and a.get("doi"):
+                a["_oa_url"] = "https://doi.org/" + a["doi"]
+    log("OA articles: %d / %d (pmc+unpaywall+oa-journal)", sum(1 for a in arts if a["_pmcid"] or a["_oa_url"]), len(arts))
     sel = call_deepseek(build_selection_prompt(arts, target.strftime("%Y-%m-%d")))
     data = {
         "headline": sel.get("headline", ""),
