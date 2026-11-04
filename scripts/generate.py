@@ -267,7 +267,8 @@ def article_block(arts, max_ab=1600):
         ab = a["abstract"].strip().replace("\n", " ")
         if len(ab) > max_ab:
             ab = ab[:max_ab] + "…"
-        lines.append("PMID %s | %s | %s" % (a["pmid"], a["jiso"], a["date"]))
+        oa = "[OA] " if a.get("_pmcid") else ""
+        lines.append("%sPMID %s | %s | %s" % (oa, a["pmid"], a["jiso"], a["date"]))
         lines.append("标题: %s" % a["title"])
         lines.append("摘要: %s" % ab)
         lines.append("")
@@ -301,9 +302,10 @@ def build_selection_prompt(arts, target_date):
 }
 规则：
 1. selected_pmids 必须包含 10-15 篇（含 focus 的 PMID），优先 RCT/Meta/系统综述、长期随访与临床决策价值高的研究。
-2. focus 必须是 selected_pmids 之一。
-3. PMID 必须与输入一致，不得虚构。
-4. 所有文本中不得出现 Markdown 语法。""")
+2. 标注 [OA] 的是开放获取文献（读者可免费下载全文），请**尽量从中挑选 2-3 篇**纳入本期（技术说明/病例研究也可），其余从非 OA 中挑高质量研究。
+3. focus 必须是 selected_pmids 之一。
+4. PMID 必须与输入一致，不得虚构。
+5. 所有文本中不得出现 Markdown 语法。""")
     return "\n".join(lines)
 
 
@@ -715,6 +717,14 @@ def main():
         sys.exit(0)
 
     arts_by_pmid = {a["pmid"]: a for a in arts}
+    # 预查开放获取状态（用于选文标注 [OA] 与免费全文链接）
+    for a in arts:
+        try:
+            hit = europepmc_search_pmid(a["pmid"])
+        except Exception:
+            hit = None
+        a["_pmcid"] = (hit or {}).get("pmcid", "") or ""
+    log("OA articles: %d / %d", sum(1 for a in arts if a["_pmcid"]), len(arts))
     sel = call_deepseek(build_selection_prompt(arts, target.strftime("%Y-%m-%d")))
     data = {
         "headline": sel.get("headline", ""),
@@ -809,8 +819,7 @@ def main():
     has_img = False
     for pmid in selected:
         a = arts_by_pmid[pmid]
-        hit = europepmc_search_pmid(pmid)
-        pmcid = hit.get("pmcid") if hit else ""
+        pmcid = a.get("_pmcid", "")
         if not pmcid:
             continue
         blob = download_figure(pmcid, pmid)
