@@ -167,7 +167,14 @@ def fetch_new_articles(journals, lookback_days=2):
     ds1 = target.strftime("%Y/%m/%d")
     term = '(%s) AND ("%s"[edat] : "%s"[edat])' % (term_j, ds0, ds1)
     log("esearch term:", term[:200])
-    pmids = esearch_pmids(term)
+    pmids = []
+    # PubMed 偶发 500/空结果：逐次重试（90s 间隔）
+    for attempt in range(3):
+        pmids = esearch_pmids(term)
+        if pmids:
+            break
+        log("esearch returned 0 ids (attempt %d/3), retry in 90s", attempt + 1)
+        time.sleep(90)
     arts = efetch_articles(pmids)
     total = len(arts)
     kept = [a for a in arts if not (set(a["ptypes"]) & EXCLUDE_PUBTYPES)]
