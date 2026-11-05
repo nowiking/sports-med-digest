@@ -64,12 +64,18 @@ def log(*a):
 
 # ---------------- HTTP helpers ----------------
 
+# 本地调试：设置环境变量 NO_PROXY_HTTP=1 可绕过系统代理（本机代理软件开关会导致 urllib 连接被拒）
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({})) \
+    if os.environ.get("NO_PROXY_HTTP") == "1" else None
+
+
 def http_get(url, timeout=120, binary=False, headers=None):
     h = {"User-Agent": "sports-med-digest/1.0"}
     if headers:
         h.update(headers)
     req = urllib.request.Request(url, headers=h)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    op = _OPENER.open if _OPENER else urllib.request.urlopen
+    with op(req, timeout=timeout) as r:
         data = r.read()
     return data if binary else data.decode("utf-8", "replace")
 
@@ -80,7 +86,8 @@ def http_post_json(url, payload, headers=None, timeout=300):
     if headers:
         h.update(headers)
     req = urllib.request.Request(url, data=body, headers=h)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    op = _OPENER.open if _OPENER else urllib.request.urlopen
+    with op(req, timeout=timeout) as r:
         return json.loads(r.read().decode("utf-8", "replace"))
 
 
@@ -180,6 +187,39 @@ def fetch_new_articles(journals, lookback_days=2):
     kept = [a for a in arts if not (set(a["ptypes"]) & EXCLUDE_PUBTYPES)]
     log("fetched %d, kept %d after excluding editorials/letters", total, len(kept))
     return kept, target, total, lookback_days
+
+
+def epmc_fetch_articles(journals, target, lookback_days=2):
+    """Europe PMC 备用检索（PubMed eutils 故障时使用）。"""
+    jq = " OR ".join('JOURNAL:"%s"' % j for j in journals)
+    start = target - timedelta(days=lookback_days - 1)
+    query = '(%s) AND FIRST_PDATE:[%s TO %s]' % (
+        jq, start.strftime("%Y-%m-%d"), target.strftime("%Y-%m-%d"))
+    q = urllib.parse.urlencode({"query": query, "format": "json",
+                                "resultType": "core", "pageSize": "100"})
+    data = json.loads(http_get_retry(EPMC + "/search?" + q))
+    arts = []
+    for r in data.get("resultList", {}).get("result", []):
+        pmid = r.get("pmid")
+        if not pmid:
+            continue
+        jinfo = (r.get("journalInfo") or {}).get("journal") or {}
+        jiso = jinfo.get("isoabbreviation") or jinfo.get("medlineAbbreviation") or ""
+        ptl = (r.get("pubTypeList") or {}).get("pubType") or []
+        pts = [p if isinstance(p, str) else (p.get("type") or "") for p in ptl]
+        arts.append({
+            "pmid": str(pmid),
+            "title": (r.get("title") or "").strip().rstrip("."),
+            "journal": r.get("journalTitle") or "",
+            "jiso": jiso,
+            "date": r.get("firstPublicationDate") or "",
+            "abstract": (r.get("abstractText") or "").strip(),
+            "doi": (r.get("doi") or "").strip(),
+            "ptypes": pts,
+        })
+    kept = [a for a in arts if not (set(a["ptypes"]) & EXCLUDE_PUBTYPES)]
+    log("europepmc fallback: fetched %d, kept %d", len(arts), len(kept))
+    return kept, target, len(arts), lookback_days
 
 
 # ---------------- Europe PMC（题图 / 免费 PDF） ----------------
@@ -745,14 +785,39 @@ def main():
         log("今日已生成（%s），跳过", state["last_digest_date"])
         sys.exit(0)
 
-    arts, target, total, win = fetch_new_articles(journals)
+    try:
+        arts, target, total, win = fetch_new_articles(journals)
+    except Exception as e:
+        log("pubmed fetch failed: %s", e)
+        arts, target, total, win = [], today_bj - timedelta(days=1), 0, 2
+    if not arts:
+        log("PubMed 无结果/故障 → 切换 Europe PMC 备用源")
+        try:
+            arts, target, total, win = epmc_fetch_articles(journals, today_bj - timedelta(days=1))
+        except Exception as e2:
+            log("europepmc fallback failed: %s", e2)
+            sys.exit(3)
     if 0 < len(arts) < 10:
-        log("only %d articles in %d-day window (weekend/holiday?), widening to 4 days", len(arts), win)
-        arts4, target4, total4, win4 = fetch_new_articles(journals, lookback_days=4)
+        log("only %d articles in %d-day window, widening to 4 days", len(arts), win)
+        arts4 = []
+        try:
+            arts4, target4, total4, win4 = fetch_new_articles(journals, lookback_days=4)
+        except Exception as e:
+            log("pubmed widen failed: %s", e)
+        if len(arts4) < 10:
+            try:
+                arts4, target4, total4, win4 = epmc_fetch_articles(
+                    journals, today_bj - timedelta(days=1), lookback_days=4)
+            except Exception as e:
+                log("europepmc widen failed: %s", e)
         if len(arts4) >= 10:
             arts, target, total, win = arts4, target4, total4, win4
         else:
             log("still only %d in 4-day window, keep %d-day result", len(arts4), win)
+    log("fetched %d articles for %s (window %d days)", len(arts), target, win)
+    if not arts:
+        log("无新文献，跳过")
+        sys.exit(0)
     log("fetched %d articles for %s (window %d days)", len(arts), target, win)
     if not arts:
         log("无新文献，跳过")
